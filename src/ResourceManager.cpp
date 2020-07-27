@@ -39,58 +39,58 @@ namespace match3
 		return true;
 	}
 
-	sf::Texture & ResourceManager::getTexture(Textures texture)
+	sf::Texture & ResourceManager::getTexture(Texture texture)
 	{
 		ResourceManager& manager = getInstance();
 		switch (texture)
 		{
-		case Textures::RedTexture:
+		case Texture::RedTexture:
 			return manager.m_redFigureTexture;
-		case Textures::GreenTexture:
+		case Texture::GreenTexture:
 			return manager.m_greenFigureTexture;
-		case Textures::BlueTexture:
+		case Texture::BlueTexture:
 			return manager.m_blueFigureTexture;
-		case Textures::OrangeTexture:
+		case Texture::OrangeTexture:
 			return manager.m_orangeFigureTexture;
-		case Textures::VioletTexture:
+		case Texture::VioletTexture:
 			return manager.m_violetFIgureTexture;
-		case Textures::HBombTexture:
+		case Texture::HBombTexture:
 			return manager.m_hBombTexture;
-		case Textures::VBombTexture:
+		case Texture::VBombTexture:
 			return manager.m_vBombTexture;
-		case Textures::RBombTexture:
+		case Texture::RBombTexture:
 			return manager.m_rBombTexture;
-		case Textures::BlockTexture:
+		case Texture::BlockTexture:
 			return manager.m_blockFigure;
-		case Textures::Title1Texture:
+		case Texture::Title1Texture:
 			return manager.m_tileTexture1;
-		case Textures::Title2Texture:
+		case Texture::Title2Texture:
 			return manager.m_tileTexture2;
 		}
 	}
 
-	sf::Color & ResourceManager::getColor(Colors color)
+	sf::Color & ResourceManager::getColor(Color color)
 	{
 		ResourceManager& manager = getInstance();
 		switch (color)
 		{
-		case Colors::BackgroundColor:
+		case Color::BackgroundColor:
 			return manager.m_backgroundColor;
-		case Colors::Title1Color:
+		case Color::Title1Color:
 			return manager.m_titleColor1;
-		case Colors::Title2Color:
+		case Color::Title2Color:
 			return manager.m_titleColor2;
-		case Colors::OutlineColor:
+		case Color::OutlineColor:
 			return manager.m_titleOutlineColor;
 		}
 	}
 
-	sf::Font & ResourceManager::getFont(Fonts font)
+	sf::Font & ResourceManager::getFont(Font font)
 	{
 		ResourceManager& manager = getInstance();
 		switch (font)
 		{
-		case Fonts::MainFont:
+		case Font::MainFont:
 			return manager.m_mainFont;
 		}
 	}

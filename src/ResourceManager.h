@@ -9,7 +9,7 @@
 
 namespace match3
 {
-	enum Textures {
+	enum Texture {
 		RedTexture = 0,
 		GreenTexture = 1,
 		BlueTexture = 2,
@@ -23,14 +23,14 @@ namespace match3
 		Title2Texture = 61
 	};
 
-	enum Colors {
+	enum Color {
 		BackgroundColor = 0,
 		Title1Color = 1,
 		Title2Color = 2,
 		OutlineColor = 3
 	};
 
-	enum Fonts {
+	enum Font {
 		MainFont = 0
 	};
 
@@ -58,11 +58,11 @@ namespace match3
 
 		bool loadResources();
 
-		static sf::Texture& getTexture(Textures texture);
+		static sf::Texture& getTexture(Texture texture);
 
-		static sf::Color& getColor(Colors color);
+		static sf::Color& getColor(Color color);
 
-		static sf::Font& getFont(Fonts font);
+		static sf::Font& getFont(Font font);
 
 	private:
 		ResourceManager() = default;

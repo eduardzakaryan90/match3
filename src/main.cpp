@@ -1,8 +1,10 @@
 #include <iostream>
-#include "GameController.hpp"
+#include "GameController.h"
 
 int main() {
-    GameController* gc = new GameController();
-    gc->startGame();
+    match3::GameController gc;
+	if (gc.initGame()) {
+		gc.startGame();
+	}
     return 0;
 }

@@ -16,7 +16,7 @@ namespace match3
 		const int MAX_ROWS = 10;
 		const int MIN_MOVES_COUNT = 1;
 		const int MAX_MOVES_COUNT = 999;
-		const int MIN_OBJECTIVE_TARGET = 1;
+		const int MIN_OBJECTIVE_TARGET = 0;
 		const int MAX_OBJECTIVE_TARGET = 999;
 		const int MIN_FIGURES_COUNT = 3;
 		const int MAX_FIGURES_COUNT = 5;
