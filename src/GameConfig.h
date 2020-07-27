@@ -10,18 +10,18 @@ namespace match3
 	class GameConfig
 	{
 	private:
-		const int MIN_COLUMNS = 7;
-		const int MAX_COLUMNS = 10;
-		const int MIN_ROWS = 7;
-		const int MAX_ROWS = 10;
-		const int MIN_MOVES_COUNT = 1;
-		const int MAX_MOVES_COUNT = 999;
-		const int MIN_OBJECTIVE_TARGET = 0;
-		const int MAX_OBJECTIVE_TARGET = 999;
-		const int MIN_FIGURES_COUNT = 3;
-		const int MAX_FIGURES_COUNT = 5;
-		const int MIN_OBJECTIVES_COUNT = 1;
-		const int MAX_OBJECTIVES_COUNT = 3;
+		const int32_t MIN_COLUMNS = 7;
+		const int32_t MAX_COLUMNS = 10;
+		const int32_t MIN_ROWS = 7;
+		const int32_t MAX_ROWS = 10;
+		const int32_t MIN_MOVES_COUNT = 1;
+		const int32_t MAX_MOVES_COUNT = 999;
+		const int32_t MIN_OBJECTIVE_TARGET = 0;
+		const int32_t MAX_OBJECTIVE_TARGET = 999;
+		const int32_t MIN_FIGURES_COUNT = 3;
+		const int32_t MAX_FIGURES_COUNT = 5;
+		const int32_t MIN_OBJECTIVES_COUNT = 1;
+		const int32_t MAX_OBJECTIVES_COUNT = 3;
 
 		const std::string ENABLE_BLOCK_FIGURES_FIELD_NAME = "enableBloackFigures";
 		const std::string BOARD_COLUMNS_FIELD_NAME = "boardColumns";
@@ -40,39 +40,39 @@ namespace match3
 
 		// setters
 		void setEnableBlockFigures(const bool enable);
-		void setBoardColumns(const int width);
-		void setBoardRows(const int height);
-		void setMovesCount(const int movesCount);
-		void addToFiguresConfig(std::string colorName, int objective);
+		void setBoardColumns(const int32_t width);
+		void setBoardRows(const int32_t height);
+		void setMovesCount(const int32_t movesCount);
+		void addToFiguresConfig(std::string colorName, int32_t objective);
 
 		// getters
 		bool getEnableBlockFigures() const;
-		int getBoardColumns() const;
-		int getBoardRows() const;
-		int getMovesCount() const;
-		std::list<std::pair<std::string, int>> getFiguresConfig() const;
+		int32_t getBoardColumns() const;
+		int32_t getBoardRows() const;
+		int32_t getMovesCount() const;
+		std::list<std::pair<std::string, int32_t>> getFiguresConfig() const;
 
 	private:
 		bool m_enableBlockFigures;
-		int m_boardColumns;
-		int m_boardRows;
-		int m_movesCount;
-		std::list<std::pair<std::string, int>> m_figuresConfig; // key - figure color name, value - objective. If value is 0 - no objective set.
+		int32_t m_boardColumns;
+		int32_t m_boardRows;
+		int32_t m_movesCount;
+		std::list<std::pair<std::string, int32_t>> m_figuresConfig; // key - figure color name, value - objective. If value is 0 - no objective set.
 
-		int m_figuresSet = 0;
-		int m_objectivesSet = 0;
+		int32_t m_figuresSet = 0;
+		int32_t m_objectivesSet = 0;
 	};
 
 	struct WrongConfigJsonRuleException : public std::exception
 	{
 		const std::string m_field;
-		const int m_minValue;
-		const int m_maxValue;
-		const int m_actualValue;
+		const int32_t m_minValue;
+		const int32_t m_maxValue;
+		const int32_t m_actualValue;
 
 		mutable std::string errorString;
 
-		explicit WrongConfigJsonRuleException(const std::string field, const int minValue, const int maxValue, const int actualValue)
+		explicit WrongConfigJsonRuleException(const std::string field, const int32_t minValue, const int32_t maxValue, const int32_t actualValue)
 			: std::exception()
 			, m_field(field)
 			, m_minValue(minValue)

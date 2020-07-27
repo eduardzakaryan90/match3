@@ -12,7 +12,7 @@ namespace match3
 	class GameController
 	{
 	private:
-		const int MOUSE_MOVE_DELTA = 10;
+		const int32_t MOUSE_MOVE_DELTA = 10;
 
 	public:
 		bool initGame();

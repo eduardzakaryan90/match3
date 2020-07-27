@@ -5,43 +5,46 @@
 #include "Game.h"
 #include "SFML/Graphics.hpp"
 
-#include <iostream>
 #include <cmath>
 
 namespace match3
 {
 	bool GameController::initGame()
 	{
+		std::string errorString;
 		GameConfig config;
 		try {
+			if (!ResourceManager::getInstance().loadResources()) {
+				errorString == "Unable to load resources";
+			}
+
 			if (!config.readJsonFile()) {
-				std::cout << "Unable to read config.json file" << std::endl;
-				return false;
+				errorString = "Unable to read config.json file";
 			}
 		}
 		catch (const std::exception& ex) {
-			std::cout << ex.what() << std::endl;
-			return false;
+			errorString = ex.what();
 		}
 
-		if (!ResourceManager::getInstance().loadResources()) {
-			std::cout << "Unable to load resources" << std::endl;
-			return false;
+		if (errorString.empty()) {
+			m_game.reset(new Game(config.getBoardColumns(), config.getBoardRows(),
+				config.getMovesCount(), config.getFiguresConfig(), config.getEnableBlockFigures()));
+		}
+		else {
+			m_game.reset(new Game(errorString));
 		}
 
-		m_game.reset(new Game(config.getBoardColumns(), config.getBoardRows(),
-			config.getMovesCount(), config.getFiguresConfig(), config.getEnableBlockFigures()));
-		m_app = m_game->getApp();
+		m_app = m_game->openGameWindow();
 
 		return true;
 	}
 
 	void GameController::startGame()
 	{
-		int pressedX;
-		int pressedY;
-		int releasedX;
-		int releasedY;
+		int32_t pressedX;
+		int32_t pressedY;
+		int32_t releasedX;
+		int32_t releasedY;
 
 		bool pressed = false;
 		bool moved = false;
@@ -60,8 +63,8 @@ namespace match3
 					pressedY = event.mouseButton.y;
 				}
 				else if (pressed && event.type == sf::Event::MouseMoved) {
-					int moveX = event.mouseMove.x;
-					int moveY = event.mouseMove.y;
+					int32_t moveX = event.mouseMove.x;
+					int32_t moveY = event.mouseMove.y;
 
 					if (std::abs(moveX - pressedX) > MOUSE_MOVE_DELTA) {
 						pressed = false;
@@ -89,12 +92,10 @@ namespace match3
 
 			if (moved) {
 				moved = false;
-				std::cout << pressedX << " " << pressedY << " " << direction << std::endl;
 				m_game->mouseMoveEvent(pressedX, pressedY, direction);
 			}
 			else if (released) {
 				released = false;
-				std::cout << pressedX << " " << pressedY << " " << std::endl;
 				m_game->mouseClickEvent(pressedX, pressedY);
 			}
 			else {

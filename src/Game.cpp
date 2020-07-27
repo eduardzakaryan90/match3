@@ -5,31 +5,47 @@
 
 namespace match3
 {
-	Game::Game(int columns, int rows, int movesCount, std::list<std::pair<std::string, int>> figuresConfig, bool enableBlockFigures)
+	Game::Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig, bool enableBlockFigures)
 		: m_enableBlockFigures(enableBlockFigures)
 		, m_movesCount(movesCount)
 		, m_gameState(GameState::Active)
 	{
-		m_windowWidth = (unsigned int) (columns * TILE_SIZE + 2 * BOARD_HORIZONTAL_DELTA);
-		m_windowHeight = (unsigned int) (rows * TILE_SIZE + 2 * BOARD_VERTICAL_DELTA + HEADER_HEIGHT);
-
-		m_app.reset(new sf::RenderWindow(sf::VideoMode(m_windowWidth, m_windowHeight), "Match 3", sf::Style::Close));
-		m_app->setFramerateLimit(FRAME_RATE);
+		m_windowWidth = static_cast<uint32_t>(columns * TILE_SIZE + 2 * BOARD_HORIZONTAL_DELTA);
+		m_windowHeight = static_cast<uint32_t>(rows * TILE_SIZE + 2 * BOARD_VERTICAL_DELTA + HEADER_HEIGHT);
 
 		createObjectiveDrawables(figuresConfig);
 
 		createHeaderDrawables();
 		createGameBoardBackgroundTiles(columns, rows);
 		
-		m_endGameText.reset(new sf::Text("", ResourceManager::getFont(Font::MainFont), 50));
-		m_endGameText->setStyle(sf::Text::Bold);
-		m_endGameText->setOutlineColor(ResourceManager::getColor(Color::OutlineColor));
-		m_endGameText->setOutlineThickness(7.0f);
-		m_endGameText->setLetterSpacing(1.5f);
+		m_gameMessageText.reset(new sf::Text("", ResourceManager::getFont(Font::MainFont), 50));
+		m_gameMessageText->setStyle(sf::Text::Bold);
+		m_gameMessageText->setOutlineColor(ResourceManager::getColor(Color::OutlineColor));
+		m_gameMessageText->setOutlineThickness(7.0f);
+		m_gameMessageText->setLetterSpacing(1.5f);
 	}
 
-	std::shared_ptr<sf::RenderWindow> Game::getApp()
+	Game::Game(std::string errorMassage)
+		: m_gameState(GameState::Error)
 	{
+		m_gameMessageText.reset(new sf::Text(errorMassage, ResourceManager::getFont(Font::MainFont), 24));
+		m_gameMessageText->setStyle(sf::Text::Regular);
+		m_gameMessageText->setFillColor(sf::Color::Magenta);
+		m_gameMessageText->setOutlineColor(ResourceManager::getColor(Color::OutlineColor));
+		m_gameMessageText->setOutlineThickness(1.0f);
+		m_gameMessageText->setLetterSpacing(1.5f);
+		m_gameMessageText->setPosition(TILE_SIZE, TILE_SIZE);
+
+		sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
+		m_windowWidth = static_cast<uint32_t>(TILE_SIZE * 2 + boundRect.width);
+		m_windowHeight = static_cast<uint32_t>(TILE_SIZE * 2 + boundRect.height);
+	}
+
+	std::shared_ptr<sf::RenderWindow> Game::openGameWindow()
+	{
+		m_app.reset(new sf::RenderWindow(sf::VideoMode(m_windowWidth, m_windowHeight), "Match 3", sf::Style::Close));
+		m_app->setFramerateLimit(FRAME_RATE);
+
 		return m_app;
 	}
 
@@ -40,22 +56,28 @@ namespace match3
 			drawGameBoard();
 		}
 		else {
-			m_app->draw(*m_endGameText);
+			m_app->draw(*m_gameMessageText);
 		}
 	}
 
-	void Game::mouseMoveEvent(int X, int Y, MouseMoveDirection direction)
+	void Game::mouseMoveEvent(int32_t X, int32_t Y, MouseMoveDirection direction)
 	{
-		// TODO
+		if (m_gameState == GameState::Active) {
+			// TODO: handle mouse move
+		}
 		draw();
 	}
 
-	void Game::mouseClickEvent(int X, int Y)
+	void Game::mouseClickEvent(int32_t X, int32_t Y)
 	{
-		// TODO
+		if (m_gameState == GameState::Active) {
+			// TODO: handle mouse click
+		}
 		draw();
 	}
 
+#pragma warning( push )
+#pragma warning( disable : 4715)
 	BoardColorFigureType Game::getBoardColorFigureTypesFromColorName(std::string colorName)
 	{
 		if (colorName == RED_COLOR_NAME) {
@@ -74,38 +96,39 @@ namespace match3
 			return BoardColorFigureType::VioletFigureType;
 		}
 	}
+#pragma warning( pop )
 
 	std::shared_ptr<sf::Sprite> Game::createSpriteFromColorFigureTpe(BoardColorFigureType figureTypes)
 	{
-		sf::Sprite * sprite;
+		std::shared_ptr<sf::Sprite> sprite;
 		switch (figureTypes)
 		{
 		case match3::RedFigureType:
-			sprite = new sf::Sprite(ResourceManager::getTexture(Texture::RedTexture));
+			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::RedTexture)));
 			break;
 		case match3::GreenFigureType:
-			sprite = new sf::Sprite(ResourceManager::getTexture(Texture::GreenTexture));
+			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::GreenTexture)));
 			break;
 		case match3::BlueFigureType:
-			sprite = new sf::Sprite(ResourceManager::getTexture(Texture::BlueTexture));
+			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::BlueTexture)));
 			break;
 		case match3::OrangeFigureType:
-			sprite = new sf::Sprite(ResourceManager::getTexture(Texture::OrangeTexture));
+			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::OrangeTexture)));
 			break;
 		case match3::VioletFigureType:
-			sprite = new sf::Sprite(ResourceManager::getTexture(Texture::VioletTexture));
+			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::VioletTexture)));
 			break;
 		}
 		sprite->setScale(0.6f, 0.6f);
-		return std::shared_ptr<sf::Sprite>(sprite);
+		return sprite;
 	}
 
-	void Game::createObjectiveDrawables(std::list<std::pair<std::string, int>> figuresConfig)
+	void Game::createObjectiveDrawables(std::list<std::pair<std::string, int32_t>> figuresConfig)
 	{
-		int i = 0;
+		size_t i = 0;
 		for (auto config : figuresConfig) {
 			BoardColorFigureType figureType = getBoardColorFigureTypesFromColorName(config.first);
-			int objectiveTarget = config.second;
+			int32_t objectiveTarget = config.second;
 
 			if (objectiveTarget > 0) {
 				Objective objective;
@@ -182,12 +205,12 @@ namespace match3
 		if (decrement) {
 			--m_movesCount;
 			if (m_movesCount == 0) {
-				m_endGameText->setString(LOST_TEXT);
-				m_endGameText->setFillColor(sf::Color::Red);
-				sf::FloatRect boundRect = m_endGameText->getGlobalBounds();
+				m_gameMessageText->setString(LOST_TEXT);
+				m_gameMessageText->setFillColor(sf::Color::Red);
+				sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
 				float xDelta = boundRect.width / 2;
 				float yDelta = boundRect.height / 2;
-				m_endGameText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
+				m_gameMessageText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
 				m_gameState = GameState::Lost;
 			}
 		}
@@ -199,9 +222,9 @@ namespace match3
 		m_movesCountText->setPosition(m_movesCountCenterPos.x - xDelta, m_movesCountCenterPos.y - yDelta);
 	}
 
-	void Game::updateObjectiveTarget(BoardColorFigureType type, int decrementValue)
+	void Game::updateObjectiveTarget(BoardColorFigureType type, int32_t decrementValue)
 	{
-		int targetAchieved = 0;
+		int32_t targetAchieved = 0;
 		for (auto& objective : m_objectives) {
 			if (objective.target == 0) {
 				++targetAchieved;
@@ -225,23 +248,23 @@ namespace match3
 		}
 
 		if (targetAchieved == m_objectives.size()) {
-			m_endGameText->setString(WON_TEXT);
-			m_endGameText->setFillColor(sf::Color::Green);
-			sf::FloatRect boundRect = m_endGameText->getGlobalBounds();
+			m_gameMessageText->setString(WON_TEXT);
+			m_gameMessageText->setFillColor(sf::Color::Green);
+			sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
 			float xDelta = boundRect.width / 2;
 			float yDelta = boundRect.height / 2;
-			m_endGameText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
+			m_gameMessageText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
 			m_gameState = GameState::Won;
 		}
 	}
 
-	void Game::createGameBoardBackgroundTiles(int columns, int rows)
+	void Game::createGameBoardBackgroundTiles(int32_t columns, int32_t rows)
 	{
 		m_gameBoardBackgroundTiles.resize(rows);
 
-		for (int i = 0; i < rows; ++i) {
+		for (size_t i = 0; i < rows; ++i) {
 			m_gameBoardBackgroundTiles[i].resize(columns);
-			for (int j = 0; j < columns; ++j) {
+			for (size_t j = 0; j < columns; ++j) {
 				std::shared_ptr<sf::Sprite> sprite(
 					new sf::Sprite((i + j) % 2 == 0? ResourceManager::getTexture(Texture::Title2Texture)
 						: ResourceManager::getTexture(Texture::Title1Texture)));

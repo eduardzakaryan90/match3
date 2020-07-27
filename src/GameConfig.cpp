@@ -98,7 +98,7 @@ namespace match3
 			}
 			std::string color = colorName.GetString();
 
-			int objectiveValue = 0;
+			int32_t objectiveValue = 0;
 			const char* objectiveFieldName = FIGURE_OBJECTIVE_FIELD_NAME.c_str();
 			if (figure.HasMember(objectiveFieldName)) {
 				rapidjson::Value& objective = figure[objectiveFieldName];
@@ -130,7 +130,7 @@ namespace match3
 		m_enableBlockFigures = enable;
 	}
 
-	void GameConfig::setBoardColumns(const int width)
+	void GameConfig::setBoardColumns(const int32_t width)
 	{
 		if (width < MIN_COLUMNS || width > MAX_COLUMNS) {
 			throw WrongConfigJsonRuleException(BOARD_COLUMNS_FIELD_NAME,
@@ -140,7 +140,7 @@ namespace match3
 		m_boardColumns = width;
 	}
 
-	void GameConfig::setBoardRows(const int height)
+	void GameConfig::setBoardRows(const int32_t height)
 	{
 		if (height < MIN_ROWS || height > MAX_ROWS) {
 			throw WrongConfigJsonRuleException(BOARD_ROWS_FIELD_NAME,
@@ -150,7 +150,7 @@ namespace match3
 		m_boardRows = height;
 	}
 
-	void GameConfig::setMovesCount(const int movesCount)
+	void GameConfig::setMovesCount(const int32_t movesCount)
 	{
 		if (movesCount < MIN_MOVES_COUNT || movesCount > MAX_MOVES_COUNT) {
 			throw WrongConfigJsonRuleException(MOVES_COUNT_FIELD_NAME,
@@ -160,7 +160,7 @@ namespace match3
 		m_movesCount = movesCount;
 	}
 
-	void GameConfig::addToFiguresConfig(std::string colorName, int objective)
+	void GameConfig::addToFiguresConfig(std::string colorName, int32_t objective)
 	{
 		if (COLORS.erase(colorName) == 0) {
 			throw InvalidOrDuplicateColorException(colorName);
@@ -171,7 +171,7 @@ namespace match3
 				MIN_OBJECTIVE_TARGET, MAX_OBJECTIVE_TARGET, objective);
 		}
 
-		m_figuresConfig.push_back(std::pair<std::string, int>(colorName, objective));
+		m_figuresConfig.push_back(std::pair<std::string, int32_t>(colorName, objective));
 	}
 
 	bool GameConfig::getEnableBlockFigures() const
@@ -179,21 +179,21 @@ namespace match3
 		return m_enableBlockFigures;
 	}
 
-	int GameConfig::getBoardColumns() const
+	int32_t GameConfig::getBoardColumns() const
 	{
 		return m_boardColumns;
 	}
 
-	int GameConfig::getBoardRows() const
+	int32_t GameConfig::getBoardRows() const
 	{
 		return m_boardRows;
 	}
 
-	int GameConfig::getMovesCount() const
+	int32_t GameConfig::getMovesCount() const
 	{
 		return m_movesCount;
 	}
-	std::list<std::pair<std::string, int>> GameConfig::getFiguresConfig() const
+	std::list<std::pair<std::string, int32_t>> GameConfig::getFiguresConfig() const
 	{
 		return m_figuresConfig;
 	}

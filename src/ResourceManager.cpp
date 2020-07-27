@@ -39,6 +39,8 @@ namespace match3
 		return true;
 	}
 
+#pragma warning( push )
+#pragma warning( disable : 4715)
 	sf::Texture & ResourceManager::getTexture(Texture texture)
 	{
 		ResourceManager& manager = getInstance();
@@ -68,7 +70,10 @@ namespace match3
 			return manager.m_tileTexture2;
 		}
 	}
+#pragma warning( pop )
 
+#pragma warning( push )
+#pragma warning( disable : 4715)
 	sf::Color & ResourceManager::getColor(Color color)
 	{
 		ResourceManager& manager = getInstance();
@@ -84,7 +89,10 @@ namespace match3
 			return manager.m_titleOutlineColor;
 		}
 	}
+#pragma warning( pop )
 
+#pragma warning( push )
+#pragma warning( disable : 4715)
 	sf::Font & ResourceManager::getFont(Font font)
 	{
 		ResourceManager& manager = getInstance();
@@ -94,4 +102,5 @@ namespace match3
 			return manager.m_mainFont;
 		}
 	}
+#pragma warning( pop )
 }

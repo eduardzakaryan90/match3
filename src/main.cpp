@@ -1,7 +1,7 @@
 #include <iostream>
 #include "GameController.h"
 
-int main() {
+int32_t main() {
     match3::GameController gc;
 	if (gc.initGame()) {
 		gc.startGame();
