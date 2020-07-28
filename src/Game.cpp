@@ -260,18 +260,23 @@ namespace match3
 
 	void Game::createGameBoardBackgroundTiles(int32_t columns, int32_t rows)
 	{
-		m_gameBoardBackgroundTiles.resize(rows);
-
+		m_gameBoardRectangle.reset(new sf::RectangleShape());
+		m_gameBoardRectangle->setSize(sf::Vector2f(TILE_SIZE * columns, TILE_SIZE * rows));
+		m_gameBoardRectangle->setFillColor(ResourceManager::getColor(Color::Title2Color));
+		m_gameBoardRectangle->setOutlineColor(ResourceManager::getColor(Color::OutlineColor));
+		m_gameBoardRectangle->setOutlineThickness(3.0f);
+		m_gameBoardRectangle->setPosition(BOARD_HORIZONTAL_DELTA, HEADER_HEIGHT + BOARD_VERTICAL_DELTA);
+		
 		for (size_t i = 0; i < rows; ++i) {
-			m_gameBoardBackgroundTiles[i].resize(columns);
 			for (size_t j = 0; j < columns; ++j) {
-				std::shared_ptr<sf::Sprite> sprite(
-					new sf::Sprite((i + j) % 2 == 0? ResourceManager::getTexture(Texture::Title2Texture)
-						: ResourceManager::getTexture(Texture::Title1Texture)));
+				if ((i + j) % 2 == 0) {
+					continue;
+				}
+				std::shared_ptr<sf::Sprite> sprite(new sf::Sprite(ResourceManager::getTexture(Texture::Title1Texture)));
 
 				sprite->setPosition(BOARD_HORIZONTAL_DELTA + j * TILE_SIZE, HEADER_HEIGHT + BOARD_VERTICAL_DELTA + i * TILE_SIZE);
 
-				m_gameBoardBackgroundTiles[i][j] = sprite;
+				m_gameBoardBackgroundTiles.push_back(sprite);
 			}
 		}
 	}
@@ -293,10 +298,9 @@ namespace match3
 	void Game::drawGameBoard()
 	{
 		// draw background tiles
-		for (auto& row : m_gameBoardBackgroundTiles) {
-			for (auto& tile : row) {
-				m_app->draw(*tile);
-			}
+		m_app->draw(*m_gameBoardRectangle);
+		for (auto tile : m_gameBoardBackgroundTiles) {
+			m_app->draw(*tile);
 		}
 	}
 }

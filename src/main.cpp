@@ -1,4 +1,3 @@
-#include <iostream>
 #include "GameController.h"
 
 int32_t main() {

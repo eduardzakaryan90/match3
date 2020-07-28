@@ -2,7 +2,6 @@
 
 #include "ResourceManager.h"
 #include "GameConfig.h"
-#include "Game.h"
 #include "SFML/Graphics.hpp"
 
 #include <cmath>

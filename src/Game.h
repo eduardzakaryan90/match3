@@ -3,7 +3,6 @@
 #include "SFML/System/Vector2.hpp"
 
 #include <memory>
-#include <vector>
 #include <list>
 
 namespace sf {
@@ -104,8 +103,9 @@ namespace match3
 		int32_t m_movesCount;
 		sf::Vector2f m_movesCountCenterPos;
 
+		std::shared_ptr<sf::RectangleShape> m_gameBoardRectangle;
 		std::list<BoardColorFigureType> m_colorFigureTypesInGame;
-		std::vector<std::vector<std::shared_ptr<sf::Sprite>>> m_gameBoardBackgroundTiles;
+		std::list<std::shared_ptr<sf::Sprite>> m_gameBoardBackgroundTiles;
 
 		uint32_t m_windowWidth;
 		uint32_t m_windowHeight;

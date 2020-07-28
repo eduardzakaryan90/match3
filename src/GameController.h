@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Game.h"
 #include <memory>
 
 namespace sf {
@@ -8,7 +9,6 @@ namespace sf {
 
 namespace match3
 {
-	class Game;
 	class GameController
 	{
 	private:
