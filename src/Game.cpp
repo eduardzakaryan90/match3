@@ -1,22 +1,31 @@
 #include "Game.h"
 
+#include "DestroyAnimation.h"
+#include "SwipeAnimation.h"
+#include "BlockedMoveAnimation.h"
+#include "ColorFigure.h"
+#include "BombFigureBase.h"
 #include "ResourceManager.h"
 #include "SFML/Graphics.hpp"
 
 namespace match3
 {
-	Game::Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig, bool enableBlockFigures)
-		: m_enableBlockFigures(enableBlockFigures)
+	Game::Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig)
+		: m_columnsSize(columns)
+		, m_rowsSize(rows)
 		, m_movesCount(movesCount)
 		, m_gameState(GameState::Active)
 	{
-		m_windowWidth = static_cast<uint32_t>(columns * TILE_SIZE + 2 * BOARD_HORIZONTAL_DELTA);
-		m_windowHeight = static_cast<uint32_t>(rows * TILE_SIZE + 2 * BOARD_VERTICAL_DELTA + HEADER_HEIGHT);
+		std::srand(static_cast<uint32_t>(std::time(nullptr)));
+
+		m_windowWidth = static_cast<uint32_t>(m_columnsSize * TILE_SIZE + 2 * BOARD_HORIZONTAL_DELTA);
+		m_windowHeight = static_cast<uint32_t>(m_rowsSize * TILE_SIZE + 2 * BOARD_VERTICAL_DELTA + HEADER_HEIGHT);
 
 		createObjectiveDrawables(figuresConfig);
 
 		createHeaderDrawables();
-		createGameBoardBackgroundTiles(columns, rows);
+		createGameBoardBackgroundTiles();
+		createInitialGameBoardFigures();
 		
 		m_gameMessageText.reset(new sf::Text("", ResourceManager::getFont(Font::MainFont), 50));
 		m_gameMessageText->setStyle(sf::Text::Bold);
@@ -52,82 +61,105 @@ namespace match3
 	void Game::draw()
 	{
 		if (m_gameState == GameState::Active) {
-			drawHeader();
 			drawGameBoard();
+			drawHeader();
 		}
 		else {
 			m_app->draw(*m_gameMessageText);
 		}
 	}
 
-	void Game::mouseMoveEvent(int32_t X, int32_t Y, MouseMoveDirection direction)
+	void Game::mouseMoveEvent(float x, float y, SwipeDirection direction)
 	{
-		if (m_gameState == GameState::Active) {
-			// TODO: handle mouse move
+		if (m_gameState == GameState::Active && m_activeAnimation.get() == nullptr) {
+			std::shared_ptr<FigureBase> figure = findFigureUnderXY(x, y);
+			if (figure.get() != nullptr && figure->canSwipe()) {
+				std::shared_ptr<FigureBase> secondFigure;
+				switch (direction)
+				{
+				case match3::Up:
+					secondFigure = findFigureUnderXY(x, y - TILE_SIZE);
+					break;
+				case match3::Down:
+					secondFigure = findFigureUnderXY(x, y + TILE_SIZE);
+					break;
+				case match3::Right:
+					secondFigure = findFigureUnderXY(x + TILE_SIZE, y);
+					break;
+				case match3::Left:
+					secondFigure = findFigureUnderXY(x - TILE_SIZE, y);
+					break;
+				}
+				if (secondFigure.get() == nullptr) {
+					m_activeAnimation.reset(new BlockedMoveAnimation(figure, direction));
+				}
+				else {
+					CreateSwipeAnimation(figure, secondFigure, direction);
+				}
+			}
 		}
-		draw();
 	}
 
-	void Game::mouseClickEvent(int32_t X, int32_t Y)
+	void Game::CreateSwipeAnimation(std::shared_ptr<FigureBase> first, std::shared_ptr<FigureBase> second, SwipeDirection direction)
 	{
-		if (m_gameState == GameState::Active) {
-			// TODO: handle mouse click
+		m_activeAnimation.reset(new SwipeAnimation(first, second, direction));
+		auto tempFigure = first;
+		m_gameBoardFigures[first->getCoordX()][first->getCoordY()] = second;
+		m_gameBoardFigures[second->getCoordX()][second->getCoordY()] = tempFigure;
+
+		size_t tempX = first->getCoordX();
+		size_t tempY = first->getCoordY();
+		first->setCoordX(second->getCoordX());
+		first->setCoordY(second->getCoordY());
+		second->setCoordX(tempX);
+		second->setCoordY(tempY);
+	}
+
+	void Game::mouseClickEvent(float x, float y)
+	{
+		if (m_gameState == GameState::Active && m_activeAnimation.get() == nullptr) {
+			std::shared_ptr<FigureBase> figure = findFigureUnderXY(x, y);
+			if (figure.get() != nullptr && figure->canClick()) {
+				switch (figure->type())
+				{
+				case FigureType::BombFigureType:
+					auto bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
+					m_activeAnimation.reset(new DestroyAnimation(bomb->getTargets()));
+
+					updateMovesCount();
+					break;
+				}
+			}
 		}
-		draw();
 	}
 
 #pragma warning( push )
 #pragma warning( disable : 4715)
-	BoardColorFigureType Game::getBoardColorFigureTypesFromColorName(std::string colorName)
+	FigureType Game::getBoardColorFigureTypesFromColorName(std::string colorName)
 	{
 		if (colorName == RED_COLOR_NAME) {
-			return BoardColorFigureType::RedFigureType;
+			return FigureType::RedFigureType;
 		}
 		else if (colorName == GREEEN_COLOR_NAME) {
-			return BoardColorFigureType::GreenFigureType;
+			return FigureType::GreenFigureType;
 		}
 		else if (colorName == BLUE_COLOR_NAME) {
-			return BoardColorFigureType::BlueFigureType;
+			return FigureType::BlueFigureType;
 		}
 		else if (colorName == ORANGE_COLOR_NAME) {
-			return BoardColorFigureType::OrangeFigureType;
+			return FigureType::OrangeFigureType;
 		}
 		else if (colorName == VIOLET_COLOR_NAME) {
-			return BoardColorFigureType::VioletFigureType;
+			return FigureType::VioletFigureType;
 		}
 	}
 #pragma warning( pop )
-
-	std::shared_ptr<sf::Sprite> Game::createSpriteFromColorFigureTpe(BoardColorFigureType figureTypes)
-	{
-		std::shared_ptr<sf::Sprite> sprite;
-		switch (figureTypes)
-		{
-		case match3::RedFigureType:
-			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::RedTexture)));
-			break;
-		case match3::GreenFigureType:
-			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::GreenTexture)));
-			break;
-		case match3::BlueFigureType:
-			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::BlueTexture)));
-			break;
-		case match3::OrangeFigureType:
-			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::OrangeTexture)));
-			break;
-		case match3::VioletFigureType:
-			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::VioletTexture)));
-			break;
-		}
-		sprite->setScale(0.6f, 0.6f);
-		return sprite;
-	}
 
 	void Game::createObjectiveDrawables(std::list<std::pair<std::string, int32_t>> figuresConfig)
 	{
 		size_t i = 0;
 		for (auto config : figuresConfig) {
-			BoardColorFigureType figureType = getBoardColorFigureTypesFromColorName(config.first);
+			FigureType figureType = getBoardColorFigureTypesFromColorName(config.first);
 			int32_t objectiveTarget = config.second;
 
 			if (objectiveTarget > 0) {
@@ -136,7 +168,7 @@ namespace match3
 				objective.target = objectiveTarget;
 
 				// create objective sprite
-				std::shared_ptr<sf::Sprite> sprite = createSpriteFromColorFigureTpe(figureType);
+				std::shared_ptr<sf::Sprite> sprite = ColorFigure::createSpriteFromColorFigureTpe(figureType);
 
 				sf::FloatRect spriteBoundRect = sprite->getGlobalBounds();
 				float spriteXDelta = spriteBoundRect.width / 2;
@@ -222,7 +254,7 @@ namespace match3
 		m_movesCountText->setPosition(m_movesCountCenterPos.x - xDelta, m_movesCountCenterPos.y - yDelta);
 	}
 
-	void Game::updateObjectiveTarget(BoardColorFigureType type, int32_t decrementValue)
+	void Game::updateObjectiveTarget(FigureType type, int32_t decrementValue)
 	{
 		int32_t targetAchieved = 0;
 		for (auto& objective : m_objectives) {
@@ -258,27 +290,74 @@ namespace match3
 		}
 	}
 
-	void Game::createGameBoardBackgroundTiles(int32_t columns, int32_t rows)
+	void Game::createGameBoardBackgroundTiles()
 	{
 		m_gameBoardRectangle.reset(new sf::RectangleShape());
-		m_gameBoardRectangle->setSize(sf::Vector2f(TILE_SIZE * columns, TILE_SIZE * rows));
+		m_gameBoardRectangle->setSize(sf::Vector2f(TILE_SIZE * m_columnsSize, TILE_SIZE * m_rowsSize));
 		m_gameBoardRectangle->setFillColor(ResourceManager::getColor(Color::Title2Color));
 		m_gameBoardRectangle->setOutlineColor(ResourceManager::getColor(Color::OutlineColor));
 		m_gameBoardRectangle->setOutlineThickness(3.0f);
 		m_gameBoardRectangle->setPosition(BOARD_HORIZONTAL_DELTA, HEADER_HEIGHT + BOARD_VERTICAL_DELTA);
 		
-		for (size_t i = 0; i < rows; ++i) {
-			for (size_t j = 0; j < columns; ++j) {
+		for (size_t i = 0; i < m_columnsSize; ++i) {
+			for (size_t j = 0; j < m_rowsSize; ++j) {
 				if ((i + j) % 2 == 0) {
 					continue;
 				}
 				std::shared_ptr<sf::Sprite> sprite(new sf::Sprite(ResourceManager::getTexture(Texture::Title1Texture)));
 
-				sprite->setPosition(BOARD_HORIZONTAL_DELTA + j * TILE_SIZE, HEADER_HEIGHT + BOARD_VERTICAL_DELTA + i * TILE_SIZE);
+				sprite->setPosition(BOARD_HORIZONTAL_DELTA + i * TILE_SIZE, HEADER_HEIGHT + BOARD_VERTICAL_DELTA + j * TILE_SIZE);
 
 				m_gameBoardBackgroundTiles.push_back(sprite);
 			}
 		}
+	}
+
+	void Game::createInitialGameBoardFigures()
+	{
+		m_gameBoardFigures.resize(m_columnsSize);
+
+		for (size_t i = 0; i < m_columnsSize; ++i) {
+			m_gameBoardFigures[i].resize(m_rowsSize);
+
+			for (size_t j = 0; j < m_rowsSize; ++j) {
+				m_gameBoardFigures[i][j] = getRandomColorFigure();
+
+				sf::FloatRect boundRect = m_gameBoardFigures[i][j]->sprite()->getGlobalBounds();
+
+				float x = BOARD_HORIZONTAL_DELTA + (i + 0.5f) * TILE_SIZE - boundRect.width / 2;
+				float y = HEADER_HEIGHT + BOARD_VERTICAL_DELTA + (j + 0.5f) * TILE_SIZE - boundRect.height / 2;
+
+				m_gameBoardFigures[i][j]->sprite()->setPosition(x, y);
+
+				m_gameBoardFigures[i][j]->setCoordX(i);
+				m_gameBoardFigures[i][j]->setCoordY(j);
+			}
+		}
+	}
+
+	std::shared_ptr<FigureBase> Game::getRandomColorFigure()
+	{
+		int32_t blockPossibiltyCheck = (std::rand() * 4) / RAND_MAX;
+		return std::shared_ptr<FigureBase>(new ColorFigure(static_cast<FigureType>(blockPossibiltyCheck)));
+	}
+
+	std::shared_ptr<FigureBase> Game::findFigureUnderXY(float x, float y)
+	{
+		float gameBoardLocalX = x - BOARD_HORIZONTAL_DELTA;
+		float gameBoardLocalY = y - HEADER_HEIGHT - BOARD_VERTICAL_DELTA;
+		if (gameBoardLocalX < 0 || gameBoardLocalY < 0) {
+			return nullptr;
+		}
+
+		int32_t i = static_cast<int32_t>(gameBoardLocalX / TILE_SIZE);
+		int32_t j = static_cast<int32_t>(gameBoardLocalY / TILE_SIZE);
+
+		if (i >= m_columnsSize || j >= m_rowsSize) {
+			return nullptr;
+		}
+
+		return m_gameBoardFigures[i][j];
 	}
 
 	void Game::drawHeader()
@@ -301,6 +380,18 @@ namespace match3
 		m_app->draw(*m_gameBoardRectangle);
 		for (auto tile : m_gameBoardBackgroundTiles) {
 			m_app->draw(*tile);
+		}
+
+		// animate
+		if (m_activeAnimation.get() != nullptr && m_activeAnimation->animate()) {
+			m_activeAnimation.reset();
+		}
+
+		// draw board figures
+		for (auto& row : m_gameBoardFigures) {
+			for (auto& figure : row) {
+				m_app->draw(*(figure->sprite()));
+			}
 		}
 	}
 }

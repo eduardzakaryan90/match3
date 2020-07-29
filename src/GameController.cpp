@@ -27,7 +27,7 @@ namespace match3
 
 		if (errorString.empty()) {
 			m_game.reset(new Game(config.getBoardColumns(), config.getBoardRows(),
-				config.getMovesCount(), config.getFiguresConfig(), config.getEnableBlockFigures()));
+				config.getMovesCount(), config.getFiguresConfig()));
 		}
 		else {
 			m_game.reset(new Game(errorString));
@@ -49,7 +49,7 @@ namespace match3
 		bool moved = false;
 		bool released = false;
 
-		MouseMoveDirection direction;
+		SwipeDirection direction;
 
 		while (m_app->isOpen()) {
 			m_app->clear(ResourceManager::getColor(Color::BackgroundColor));
@@ -68,12 +68,12 @@ namespace match3
 					if (std::abs(moveX - pressedX) > MOUSE_MOVE_DELTA) {
 						pressed = false;
 						moved = true;
-						direction = (moveX > pressedX ? MouseMoveDirection::Right : MouseMoveDirection::Left);
+						direction = (moveX > pressedX ? SwipeDirection::Right : SwipeDirection::Left);
 					}
 					else if (std::abs(moveY - pressedY) > MOUSE_MOVE_DELTA) {
 						pressed = false;
 						moved = true;
-						direction = (moveY > pressedY ? MouseMoveDirection::Down : MouseMoveDirection::Up);
+						direction = (moveY > pressedY ? SwipeDirection::Down : SwipeDirection::Up);
 					}					
 				}
 				else if (pressed && event.type == sf::Event::MouseButtonReleased
@@ -91,15 +91,14 @@ namespace match3
 
 			if (moved) {
 				moved = false;
-				m_game->mouseMoveEvent(pressedX, pressedY, direction);
+				m_game->mouseMoveEvent(static_cast<float>(pressedX), static_cast<float>(pressedY), direction);
 			}
 			else if (released) {
 				released = false;
-				m_game->mouseClickEvent(pressedX, pressedY);
+				m_game->mouseClickEvent(static_cast<float>(pressedX), static_cast<float>(pressedY));
 			}
-			else {
-				m_game->draw();
-			}
+
+			m_game->draw();
 
 			m_app->display();
 		}

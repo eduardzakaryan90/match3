@@ -1,9 +1,11 @@
 #pragma once
 
+#include "FigureBase.h"
 #include "SFML/System/Vector2.hpp"
 
 #include <memory>
 #include <list>
+#include <vector>
 
 namespace sf {
 	class RenderWindow;
@@ -15,21 +17,6 @@ namespace sf {
 
 namespace match3
 {
-	enum BoardColorFigureType {
-		RedFigureType = 0,
-		GreenFigureType = 1,
-		BlueFigureType = 2,
-		OrangeFigureType = 3,
-		VioletFigureType = 4
-	};
-
-	enum MouseMoveDirection {
-		Up = 0,
-		Down = 1,
-		Right = 2,
-		Left = 3
-	};
-
 	enum GameState {
 		Active = 0,
 		Won = 1,
@@ -39,13 +26,14 @@ namespace match3
 
 	struct Objective
 	{
-		BoardColorFigureType figureType;
+		FigureType figureType;
 		std::shared_ptr<sf::Sprite> figureSprite;
 		int32_t target;
 		std::shared_ptr<sf::Text> targetText;
 		sf::Vector2f centerPos;
 	};
 
+	class AnimationBase;
 	class Game
 	{
 	private:
@@ -56,7 +44,7 @@ namespace match3
 		const float BOARD_VERTICAL_DELTA = 40.0f;
 		const float HEADER_HEIGHT = 80.0f;
 
-		const uint32_t FRAME_RATE = 10;
+		const uint32_t FRAME_RATE = 60;
 
 		const std::string RED_COLOR_NAME = "red";
 		const std::string GREEEN_COLOR_NAME = "green";
@@ -68,27 +56,30 @@ namespace match3
 		const std::string LOST_TEXT= "You Lose :(";
 
 	public:
-		explicit Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig, bool enableBlockFigures);
+		explicit Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig);
 		explicit Game(std::string errorMassage);
 
 		std::shared_ptr<sf::RenderWindow> openGameWindow();
 		void draw();
-		void mouseMoveEvent(int32_t X, int32_t Y, MouseMoveDirection direction);
-		void mouseClickEvent(int32_t X, int32_t Y);
+		void mouseMoveEvent(float x, float y, SwipeDirection direction);
+		void CreateSwipeAnimation(std::shared_ptr<FigureBase> first, std::shared_ptr<FigureBase> second, SwipeDirection direction);
+		void mouseClickEvent(float x, float y);
 
 	private:
 		void drawHeader();
 		void drawGameBoard();
 
-		BoardColorFigureType getBoardColorFigureTypesFromColorName(std::string colorName);
-		std::shared_ptr<sf::Sprite> createSpriteFromColorFigureTpe(BoardColorFigureType figureTypes);
+		FigureType getBoardColorFigureTypesFromColorName(std::string colorName);
 
 		void createHeaderDrawables();
 		void createObjectiveDrawables(std::list<std::pair<std::string, int32_t>> figuresConfig);
 		void updateMovesCount(bool decrement = true);
-		void updateObjectiveTarget(BoardColorFigureType type, int32_t decrementValue = 0);
+		void updateObjectiveTarget(FigureType type, int32_t decrementValue = 0);
 
-		void createGameBoardBackgroundTiles(int32_t columns, int32_t rows);
+		void createGameBoardBackgroundTiles();
+		void createInitialGameBoardFigures();
+		std::shared_ptr<FigureBase> getRandomColorFigure();
+		std::shared_ptr<FigureBase> findFigureUnderXY(float x, float y);
 
 	private:
 		std::shared_ptr<sf::RenderWindow> m_app;
@@ -104,11 +95,15 @@ namespace match3
 		sf::Vector2f m_movesCountCenterPos;
 
 		std::shared_ptr<sf::RectangleShape> m_gameBoardRectangle;
-		std::list<BoardColorFigureType> m_colorFigureTypesInGame;
+		std::list<FigureType> m_colorFigureTypesInGame;
 		std::list<std::shared_ptr<sf::Sprite>> m_gameBoardBackgroundTiles;
+		std::vector<std::vector<std::shared_ptr<FigureBase>>> m_gameBoardFigures;
+
+		std::shared_ptr<AnimationBase> m_activeAnimation;
 
 		uint32_t m_windowWidth;
 		uint32_t m_windowHeight;
-		bool m_enableBlockFigures;
+		int32_t m_columnsSize;
+		int32_t m_rowsSize;
 	};
 }

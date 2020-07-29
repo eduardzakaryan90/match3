@@ -18,9 +18,8 @@ namespace match3
 		HBombTexture = 20,
 		VBombTexture = 21,
 		RBombTexture = 22,
-		BlockTexture = 40,
-		Title1Texture = 60,
-		Title2Texture = 61
+		Title1Texture = 40,
+		Title2Texture = 41
 	};
 
 	enum Color {
@@ -47,7 +46,6 @@ namespace match3
 		const std::string H_BOMB_FIGURE_FILE_NAME = "h_bomb.png";
 		const std::string V_BOMB_FIGURE_FILE_NAME = "v_bomb.png";
 		const std::string R_BOMB_FIGURE_FILE_NAME = "bomb.png";
-		const std::string BLOCK_FIGURE_FILE_NAME = "block.png";
 		const std::string TILE_1_FILE_NAME = "tile_1.png";
 		const std::string TILE_2_FILE_NAME = "tile_2.png";
 
@@ -79,7 +77,6 @@ namespace match3
 		sf::Texture m_hBombTexture;
 		sf::Texture m_vBombTexture;
 		sf::Texture m_rBombTexture;
-		sf::Texture m_blockFigure;
 		sf::Texture m_tileTexture1;
 		sf::Texture m_tileTexture2;
 

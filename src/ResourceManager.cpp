@@ -25,7 +25,6 @@ namespace match3
 			|| !m_hBombTexture.loadFromFile(fs::path(resourcePath).append(H_BOMB_FIGURE_FILE_NAME).string())
 			|| !m_vBombTexture.loadFromFile(fs::path(resourcePath).append(V_BOMB_FIGURE_FILE_NAME).string())
 			|| !m_rBombTexture.loadFromFile(fs::path(resourcePath).append(R_BOMB_FIGURE_FILE_NAME).string())
-			|| !m_blockFigure.loadFromFile(fs::path(resourcePath).append(BLOCK_FIGURE_FILE_NAME).string())
 			|| !m_tileTexture1.loadFromFile(fs::path(resourcePath).append(TILE_1_FILE_NAME).string())
 			|| !m_tileTexture2.loadFromFile(fs::path(resourcePath).append(TILE_2_FILE_NAME).string())) {
 			return false;
@@ -62,8 +61,6 @@ namespace match3
 			return manager.m_vBombTexture;
 		case Texture::RBombTexture:
 			return manager.m_rBombTexture;
-		case Texture::BlockTexture:
-			return manager.m_blockFigure;
 		case Texture::Title1Texture:
 			return manager.m_tileTexture1;
 		case Texture::Title2Texture:

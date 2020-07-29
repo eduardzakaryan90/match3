@@ -23,7 +23,6 @@ namespace match3
 		const int32_t MIN_OBJECTIVES_COUNT = 1;
 		const int32_t MAX_OBJECTIVES_COUNT = 3;
 
-		const std::string ENABLE_BLOCK_FIGURES_FIELD_NAME = "enableBloackFigures";
 		const std::string BOARD_COLUMNS_FIELD_NAME = "boardColumns";
 		const std::string BOARD_ROWS_FIELD_NAME = "boardRows";
 		const std::string MOVES_COUNT_FIELD_NAME = "movesCount";
@@ -39,21 +38,18 @@ namespace match3
 		bool readJsonFile();
 
 		// setters
-		void setEnableBlockFigures(const bool enable);
 		void setBoardColumns(const int32_t width);
 		void setBoardRows(const int32_t height);
 		void setMovesCount(const int32_t movesCount);
 		void addToFiguresConfig(std::string colorName, int32_t objective);
 
 		// getters
-		bool getEnableBlockFigures() const;
 		int32_t getBoardColumns() const;
 		int32_t getBoardRows() const;
 		int32_t getMovesCount() const;
 		std::list<std::pair<std::string, int32_t>> getFiguresConfig() const;
 
 	private:
-		bool m_enableBlockFigures;
 		int32_t m_boardColumns;
 		int32_t m_boardRows;
 		int32_t m_movesCount;

@@ -25,17 +25,6 @@ namespace match3
 		}
 
 
-		const char* enableBloackFiguresFieldName = ENABLE_BLOCK_FIGURES_FIELD_NAME.c_str();
-		if (!root.HasMember(enableBloackFiguresFieldName)) {
-			throw MissingConfigJsonFieldException(ENABLE_BLOCK_FIGURES_FIELD_NAME);
-		}
-		rapidjson::Value& enableBloackFigures = root[enableBloackFiguresFieldName];
-		if (enableBloackFigures.IsNull() || !enableBloackFigures.IsBool()) {
-			throw MissingConfigJsonFieldException(ENABLE_BLOCK_FIGURES_FIELD_NAME);
-		}
-		setEnableBlockFigures(enableBloackFigures.GetBool());
-
-
 		const char* boardWidthFieldName = BOARD_COLUMNS_FIELD_NAME.c_str();
 		if (!root.HasMember(boardWidthFieldName)) {
 			throw MissingConfigJsonFieldException(BOARD_COLUMNS_FIELD_NAME);
@@ -125,11 +114,6 @@ namespace match3
 		return true;
 	}
 
-	void GameConfig::setEnableBlockFigures(const bool enable)
-	{
-		m_enableBlockFigures = enable;
-	}
-
 	void GameConfig::setBoardColumns(const int32_t width)
 	{
 		if (width < MIN_COLUMNS || width > MAX_COLUMNS) {
@@ -172,11 +156,6 @@ namespace match3
 		}
 
 		m_figuresConfig.push_back(std::pair<std::string, int32_t>(colorName, objective));
-	}
-
-	bool GameConfig::getEnableBlockFigures() const
-	{
-		return m_enableBlockFigures;
 	}
 
 	int32_t GameConfig::getBoardColumns() const
