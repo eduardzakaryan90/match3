@@ -13,8 +13,8 @@ namespace match3
 	class AnimationBase
 	{
 	protected:
-		const float MOVE_ANIMATION_SPEED = 4.0f;
-		const float SCALE_ANIMATION_SPEED = 0.05f;
+		const float MOVE_ANIMATION_SPEED = 6.0f;
+		const float SCALE_ANIMATION_SPEED = 0.1f;
 
 	public:
 		AnimationBase(AnimationType type);

@@ -35,9 +35,6 @@ namespace match3
 
 			if (newScaleX > m_targetScale.x) {
 				newScaleX = m_targetScale.x;
-				++finishedTargets;
-			}
-			else if (newScaleY > m_targetScale.y) {
 				newScaleY = m_targetScale.y;
 				++finishedTargets;
 			}

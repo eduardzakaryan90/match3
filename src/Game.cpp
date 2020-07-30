@@ -23,6 +23,7 @@ namespace match3
 		, m_rowsSize(rows)
 		, m_movesCount(movesCount)
 		, m_gameState(GameState::Active)
+		, m_canDecrementMovesCount(false)
 	{
 		m_patternManager.reset(new PatternManager());
 
@@ -104,6 +105,7 @@ namespace match3
 					m_activeAnimation.reset(new BlockedMoveAnimation(figure, direction));
 				}
 				else {
+					m_canDecrementMovesCount = true;
 					createSwipeAnimation(figure, secondFigure, direction);
 				}
 			}
@@ -129,6 +131,7 @@ namespace match3
 			std::shared_ptr<FigureBase> figure = findFigureUnderXY(x, y);
 			if (figure.get() != nullptr && figure->canClick()) {
 				if (figure->type() == FigureType::BombFigureType) {
+					m_canDecrementMovesCount = true;
 					updateMovesCount();
 
 					auto bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
@@ -202,7 +205,7 @@ namespace match3
 
 				m_objectives.push_back(objective);
 
-				updateObjectiveTarget(figureType, 0);
+				updateObjectiveTarget(figureType, false);
 				++ObjectivesIterator;
 			}
 
@@ -244,7 +247,8 @@ namespace match3
 
 	void Game::updateMovesCount(bool decrement)
 	{
-		if (decrement) {
+		if (m_canDecrementMovesCount && decrement) {
+			m_canDecrementMovesCount = false;
 			--m_movesCount;
 			if (m_movesCount == 0) {
 				m_gameMessageText->setString(LOST_TEXT);
@@ -264,7 +268,7 @@ namespace match3
 		m_movesCountText->setPosition(m_movesCountCenterPos.x - xDelta, m_movesCountCenterPos.y - yDelta);
 	}
 
-	void Game::updateObjectiveTarget(FigureType type, int32_t decrementValue)
+	void Game::updateObjectiveTarget(FigureType type, bool decrement)
 	{
 		int32_t targetAchieved = 0;
 		for (auto& objective : m_objectives) {
@@ -273,10 +277,12 @@ namespace match3
 				continue;
 			}
 			if (objective.figureType == type) {
-				if (objective.target > 0) {
-					objective.target = objective.target - decrementValue;
-					if (objective.target == 0) {
-						++targetAchieved;
+				if (decrement) {
+					if (objective.target > 0) {
+						--objective.target;
+						if (objective.target == 0) {
+							++targetAchieved;
+						}
 					}
 				}
 
@@ -392,7 +398,6 @@ namespace match3
 				m_spawnList.insert(bomb);
 			}
 
-			updateMovesCount();
 			m_activeAnimation.reset(new DestroyAnimation(matchFigureList));
 			return true;
 		}
@@ -417,7 +422,7 @@ namespace match3
 		std::set<int32_t> columnIndexes;
 
 		for (auto target : destroyAnim->getTargets()) {
-			updateObjectiveTarget(target->type(), 1);
+			updateObjectiveTarget(target->type());
 
 			int32_t x = target->getCoords().x;
 			int32_t y = target->getCoords().y;
@@ -507,6 +512,9 @@ namespace match3
 			else {
 				m_activeAnimation.reset();
 			}
+		}
+		else {
+			updateMovesCount();
 		}
 	}
 

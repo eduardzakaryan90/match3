@@ -78,7 +78,7 @@ namespace match3
 		void createHeaderDrawables();
 		void createObjectiveDrawables(std::list<std::pair<std::string, int32_t>> figuresConfig);
 		void updateMovesCount(bool decrement = true);
-		void updateObjectiveTarget(FigureType type, int32_t decrementValue = 0);
+		void updateObjectiveTarget(FigureType type, bool decrement = true);
 
 		void createGameBoardBackgroundTiles();
 		void createInitialGameBoardFigures();
@@ -97,6 +97,8 @@ namespace match3
 		std::shared_ptr<sf::RenderWindow> m_app;
 		GameState m_gameState;
 		std::shared_ptr<PatternManager> m_patternManager;
+
+		bool m_canDecrementMovesCount;
 
 		std::shared_ptr<sf::Text> m_gameMessageText;
 
