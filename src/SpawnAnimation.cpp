@@ -1,23 +1,25 @@
-#include "DestroyAnimation.h"
+#include "SpawnAnimation.h"
 
 #include "FigureBase.h"
 #include "SFML/Graphics/Sprite.hpp"
 
 namespace match3
 {
-	DestroyAnimation::DestroyAnimation(std::set<std::shared_ptr<FigureBase>> figures)
-		: AnimationBase(AnimationType::Destroy)
+	SpawnAnimation::SpawnAnimation(std::set<std::shared_ptr<FigureBase>> figures)
+		: AnimationBase(AnimationType::Spawn)
 		, m_targets(figures)
 	{
-
+		for (auto target : m_targets) {
+			target->setNeedToSpawn(false);
+		}
 	}
 
-	DestroyAnimation::~DestroyAnimation()
+	SpawnAnimation::~SpawnAnimation()
 	{
 
 	}
 
-	bool DestroyAnimation::animate()
+	bool SpawnAnimation::animate()
 	{
 		int32_t finishedTargets = 0;
 
@@ -28,15 +30,15 @@ namespace match3
 			sf::Vector2f originScale = sprite->getScale();
 			sf::Vector2f originPos = sprite->getPosition();
 
-			float newScaleX = originScale.x - SCALE_ANIMATION_SPEED;
-			float newScaleY = originScale.y - SCALE_ANIMATION_SPEED;
+			float newScaleX = originScale.x + SCALE_ANIMATION_SPEED;
+			float newScaleY = originScale.y + SCALE_ANIMATION_SPEED;
 
-			if (newScaleX < 0) {
-				newScaleX = 0;
+			if (newScaleX > m_targetScale.x) {
+				newScaleX = m_targetScale.x;
 				++finishedTargets;
 			}
-			else if (newScaleY < 0) {
-				newScaleY = 0;
+			else if (newScaleY > m_targetScale.y) {
+				newScaleY = m_targetScale.y;
 				++finishedTargets;
 			}
 
@@ -50,7 +52,7 @@ namespace match3
 
 		return finishedTargets == m_targets.size();
 	}
-	std::set<std::shared_ptr<FigureBase>> DestroyAnimation::getTargets()
+	std::set<std::shared_ptr<FigureBase>> SpawnAnimation::getTargets()
 	{
 		return m_targets;
 	}

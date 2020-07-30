@@ -5,13 +5,23 @@
 
 namespace match3
 {
-	DropAnimation::DropAnimation(std::list<std::shared_ptr<FigureBase>> figures, float moveDelta)
+	DropAnimation::DropAnimation(std::list<std::pair<std::shared_ptr<FigureBase>, int32_t>> dropingFigures, float moveDelta)
 		: AnimationBase(AnimationType::Drop)
-		, m_targets(figures)
+		, m_dropingFigures(dropingFigures)
 		, m_moveDelta(moveDelta)
 	{
-		auto beginIt = m_targets.begin();
-		m_targetPosY = (*beginIt)->sprite()->getPosition().y;
+
+	}
+
+	void DropAnimation::setTargetPositions()
+	{
+		m_targetPositions.resize(m_dropingFigures.size());
+
+		size_t i = 0;
+		for (auto droppigFigure : m_dropingFigures) {
+			m_targetPositions[i] = droppigFigure.second * m_moveDelta + droppigFigure.first->sprite()->getPosition().y;
+			++i;
+		}
 	}
 
 	DropAnimation::~DropAnimation()
@@ -21,27 +31,36 @@ namespace match3
 
 	bool DropAnimation::animate()
 	{
-		bool isFinished = false;
+		int32_t finishedAnims = 0;
 
-		for (auto target : m_targets) {
-			auto sprite = target->sprite();
+		size_t i = 0;
+		for (auto& droppigFigure : m_dropingFigures) {
+			auto sprite = droppigFigure.first->sprite();
 
 			float x = sprite->getPosition().x;
 			float y = sprite->getPosition().y + MOVE_ANIMATION_SPEED;
 
-			if (y > m_targetPosY) {
-				y = m_targetPosY;
-				isFinished = true;
+			if (y > m_targetPositions[i]) {
+				y = m_targetPositions[i];
+				++finishedAnims;
 			}
 
 			sprite->setPosition(x, y);
+
+			++i;
 		}
 
-		return isFinished;
+		return finishedAnims == m_dropingFigures.size();
 	}
 
-	std::list<std::shared_ptr<FigureBase>> DropAnimation::getTargets()
+	std::set<std::shared_ptr<FigureBase>> DropAnimation::getTargets()
 	{
-		return m_targets;
+		std::set<std::shared_ptr<FigureBase>> targets;
+
+		for (auto& pair : m_dropingFigures) {
+			targets.insert(pair.first);
+		}
+
+		return targets;
 	}
 }

@@ -5,7 +5,7 @@
 namespace match3
 {
 	BlockedMoveAnimation::BlockedMoveAnimation(std::shared_ptr<FigureBase> target, SwipeDirection direction)
-		: AnimationBase(AnimationType::Swipe)
+		: AnimationBase(AnimationType::BlockedMove)
 		, m_figure(target)
 		, m_direction(direction)
 		, m_reversive(true)
@@ -14,16 +14,16 @@ namespace match3
 		m_targetPos = m_originPos;
 		switch (direction)
 		{
-		case match3::Up:
+		case SwipeDirection::Up:
 			m_targetPos.y -= BLOCKED_MOVE_DELTA;
 			break;
-		case match3::Down:
+		case SwipeDirection::Down:
 			m_targetPos.y += BLOCKED_MOVE_DELTA;
 			break;
-		case match3::Right:
+		case SwipeDirection::Right:
 			m_targetPos.x += BLOCKED_MOVE_DELTA;
 			break;
-		case match3::Left:
+		case SwipeDirection::Left:
 			m_targetPos.x -= BLOCKED_MOVE_DELTA;
 			break;
 		}

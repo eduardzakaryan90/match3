@@ -5,11 +5,12 @@
 namespace match3
 {
 	SwipeAnimation::SwipeAnimation(std::shared_ptr<FigureBase> first,
-		std::shared_ptr<FigureBase> second, SwipeDirection direction)
+		std::shared_ptr<FigureBase> second, SwipeDirection direction, bool isReverseAnim)
 		: AnimationBase(AnimationType::Swipe)
 		, m_figure1(first)
 		, m_figure2(second)
 		, m_direction(direction)
+		, m_isReverseAnim(isReverseAnim)
 	{
 		auto sprite1 = m_figure1->sprite();
 		auto sprite2 = m_figure2->sprite();
@@ -94,5 +95,15 @@ namespace match3
 	std::shared_ptr<FigureBase> SwipeAnimation::getFigure2()
 	{
 		return m_figure2;
+	}
+
+	SwipeDirection SwipeAnimation::getDirection()
+	{
+		return m_direction;
+	}
+
+	bool SwipeAnimation::isReverseAnim()
+	{
+		return m_isReverseAnim;
 	}
 }

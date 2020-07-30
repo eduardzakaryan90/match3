@@ -10,7 +10,7 @@ namespace sf {
 
 namespace match3
 {
-	enum FigureType {
+	enum class FigureType {
 		RedFigureType = 0,
 		GreenFigureType = 1,
 		BlueFigureType = 2,
@@ -19,7 +19,7 @@ namespace match3
 		BombFigureType = 5
 	};
 
-	enum SwipeDirection {
+	enum class SwipeDirection {
 		Up = 0,
 		Down = 1,
 		Right = 2,
@@ -28,6 +28,8 @@ namespace match3
 
 	class FigureBase
 	{
+		const float DEFAULT_SCALE = 0.5f;
+
 	public:
 		FigureBase(std::shared_ptr<sf::Sprite> sprite, FigureType type, bool canClick, bool canSwipe);
 		virtual ~FigureBase();
@@ -38,16 +40,16 @@ namespace match3
 		bool canSwipe();
 
 		// setters
-
-		void setCoordX(size_t x);
-		void setCoordY(size_t y);
+		void setCoords(size_t x, size_t y);
+		void setCoords(sf::Vector2i coordXY);
 
 		//getters
-
 		std::shared_ptr<sf::Sprite> sprite();
 
-		size_t getCoordX();
-		size_t getCoordY();
+		sf::Vector2i getCoords();
+
+		void setNeedToSpawn(bool needToSpawn);
+		bool isNeedToSpawn();
 
 	private:
 		std::shared_ptr<sf::Sprite> m_sprite;
@@ -56,7 +58,8 @@ namespace match3
 		bool m_canClick;
 		bool m_canSwipe;
 
-		size_t m_coordX;
-		size_t m_coordY;
+		sf::Vector2i m_coords;
+
+		bool m_needToSpawn;
 	};
 }

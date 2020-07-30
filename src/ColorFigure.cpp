@@ -7,7 +7,7 @@
 namespace match3
 {
 	ColorFigure::ColorFigure(FigureType figureTypes)
-		: FigureBase(createSpriteFromColorFigureTpe(figureTypes), figureTypes, false, true)
+		: FigureBase(createSpriteFromColorFigureType(figureTypes), figureTypes, false, true)
 	{
 
 	}
@@ -17,24 +17,24 @@ namespace match3
 
 	}
 
-	std::shared_ptr<sf::Sprite> ColorFigure::createSpriteFromColorFigureTpe(FigureType figureTypes)
+	std::shared_ptr<sf::Sprite> ColorFigure::createSpriteFromColorFigureType(FigureType figureTypes)
 	{
 		std::shared_ptr<sf::Sprite> sprite;
 		switch (figureTypes)
 		{
-		case match3::RedFigureType:
+		case FigureType::RedFigureType:
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::RedTexture)));
 			break;
-		case match3::GreenFigureType:
+		case FigureType::GreenFigureType:
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::GreenTexture)));
 			break;
-		case match3::BlueFigureType:
+		case FigureType::BlueFigureType:
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::BlueTexture)));
 			break;
-		case match3::OrangeFigureType:
+		case FigureType::OrangeFigureType:
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::OrangeTexture)));
 			break;
-		case match3::VioletFigureType:
+		case FigureType::VioletFigureType:
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::VioletTexture)));
 			break;
 		}

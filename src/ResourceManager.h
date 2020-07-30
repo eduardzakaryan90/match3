@@ -9,7 +9,7 @@
 
 namespace match3
 {
-	enum Texture {
+	enum class Texture {
 		RedTexture = 0,
 		GreenTexture = 1,
 		BlueTexture = 2,
@@ -22,14 +22,14 @@ namespace match3
 		Title2Texture = 41
 	};
 
-	enum Color {
+	enum class Color {
 		BackgroundColor = 0,
 		Title1Color = 1,
 		Title2Color = 2,
 		OutlineColor = 3
 	};
 
-	enum Font {
+	enum class Font {
 		MainFont = 0
 	};
 

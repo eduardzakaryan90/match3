@@ -6,6 +6,7 @@
 #include <memory>
 #include <list>
 #include <vector>
+#include <set>
 
 namespace sf {
 	class RenderWindow;
@@ -17,7 +18,7 @@ namespace sf {
 
 namespace match3
 {
-	enum GameState {
+	enum class GameState {
 		Active = 0,
 		Won = 1,
 		Lost = 2,
@@ -33,7 +34,9 @@ namespace match3
 		sf::Vector2f centerPos;
 	};
 
+	class DropAnimation;
 	class AnimationBase;
+	class PatternManager;
 	class Game
 	{
 	private:
@@ -52,8 +55,8 @@ namespace match3
 		const std::string ORANGE_COLOR_NAME = "orange";
 		const std::string VIOLET_COLOR_NAME = "violet";
 
-		const std::string WON_TEXT = "You Win!!!";
-		const std::string LOST_TEXT= "You Lose :(";
+		const std::string WON_TEXT = "You Won!!!";
+		const std::string LOST_TEXT= "You Lost :(";
 
 	public:
 		explicit Game(int32_t columns, int32_t rows, int32_t movesCount, std::list<std::pair<std::string, int32_t>> figuresConfig);
@@ -62,12 +65,13 @@ namespace match3
 		std::shared_ptr<sf::RenderWindow> openGameWindow();
 		void draw();
 		void mouseMoveEvent(float x, float y, SwipeDirection direction);
-		void CreateSwipeAnimation(std::shared_ptr<FigureBase> first, std::shared_ptr<FigureBase> second, SwipeDirection direction);
+		void createSwipeAnimation(std::shared_ptr<FigureBase> first, std::shared_ptr<FigureBase> second, SwipeDirection direction, bool isReversive = false);
 		void mouseClickEvent(float x, float y);
 
 	private:
 		void drawHeader();
 		void drawGameBoard();
+		void handleAnimations();
 
 		FigureType getBoardColorFigureTypesFromColorName(std::string colorName);
 
@@ -78,12 +82,21 @@ namespace match3
 
 		void createGameBoardBackgroundTiles();
 		void createInitialGameBoardFigures();
+		void setGameBoardFigureCoords(int32_t i, int32_t j);
 		std::shared_ptr<FigureBase> getRandomColorFigure();
 		std::shared_ptr<FigureBase> findFigureUnderXY(float x, float y);
+
+		bool checkListForMatching(std::list<sf::Vector2i> checkList);
+
+		void handleDestoryAnimation();
+		void handleSwipeAnimation();
+		void handleDropAnimatiom();
+		void handleSpawnAnimation();
 
 	private:
 		std::shared_ptr<sf::RenderWindow> m_app;
 		GameState m_gameState;
+		std::shared_ptr<PatternManager> m_patternManager;
 
 		std::shared_ptr<sf::Text> m_gameMessageText;
 
@@ -95,11 +108,14 @@ namespace match3
 		sf::Vector2f m_movesCountCenterPos;
 
 		std::shared_ptr<sf::RectangleShape> m_gameBoardRectangle;
-		std::list<FigureType> m_colorFigureTypesInGame;
+		std::vector<FigureType> m_colorFigureTypesInGame;
 		std::list<std::shared_ptr<sf::Sprite>> m_gameBoardBackgroundTiles;
 		std::vector<std::vector<std::shared_ptr<FigureBase>>> m_gameBoardFigures;
+		std::set<std::shared_ptr<FigureBase>> m_spawnList;
 
 		std::shared_ptr<AnimationBase> m_activeAnimation;
+		std::shared_ptr<DropAnimation> m_droppingAnimation;
+		std::list<sf::Vector2i> m_checkCoords;
 
 		uint32_t m_windowWidth;
 		uint32_t m_windowHeight;

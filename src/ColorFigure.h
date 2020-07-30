@@ -10,6 +10,6 @@ namespace match3
 		ColorFigure(FigureType figureTypes);
 		virtual ~ColorFigure();
 
-		static std::shared_ptr<sf::Sprite> createSpriteFromColorFigureTpe(FigureType figureTypes);
+		static std::shared_ptr<sf::Sprite> createSpriteFromColorFigureType(FigureType figureTypes);
 	};
 }

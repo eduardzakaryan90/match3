@@ -13,8 +13,18 @@ namespace match3
 
 	}
 
-	std::list<std::shared_ptr<FigureBase>> BombFigureBase::getTargets()
+	void BombFigureBase::addToAffectedList(std::set<std::shared_ptr<FigureBase>>& affectedList, std::shared_ptr<FigureBase> figure
+		, std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures)
 	{
-		return std::list<std::shared_ptr<FigureBase>>();
+		if (affectedList.find(figure) != affectedList.end()) {
+			return;
+		}
+		if (figure->type() == FigureType::BombFigureType && figure.get() != this) {
+			std::shared_ptr<BombFigureBase> bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
+			m_chainBlowBombs.insert(bomb);
+		}
+		else {
+			affectedList.insert(figure);
+		}
 	}
 }

@@ -10,8 +10,9 @@ namespace match3
 		, m_type(type)
 		, m_canClick(canClick)
 		, m_canSwipe(canSwipe)
+		, m_needToSpawn(false)
 	{
-		m_sprite->setScale(0.5f, 0.5f);
+		m_sprite->setScale(DEFAULT_SCALE, DEFAULT_SCALE);
 	}
 
 	FigureBase::~FigureBase()
@@ -34,14 +35,15 @@ namespace match3
 		return m_canSwipe;
 	}
 
-	void FigureBase::setCoordX(size_t x)
+	void FigureBase::setCoords(size_t x, size_t y)
 	{
-		m_coordX = x;
+		sf::Vector2i coordXY(static_cast<int32_t>(x), static_cast<int32_t>(y));
+		setCoords(coordXY);
 	}
 
-	void FigureBase::setCoordY(size_t y)
+	void FigureBase::setCoords(sf::Vector2i coordXY)
 	{
-		m_coordY = y;
+		m_coords = coordXY;
 	}
 
 	std::shared_ptr<sf::Sprite> FigureBase::sprite()
@@ -49,13 +51,21 @@ namespace match3
 		return m_sprite;
 	}
 
-	size_t FigureBase::getCoordX()
+	sf::Vector2i FigureBase::getCoords()
 	{
-		return m_coordX;
+		return m_coords;
 	}
 
-	size_t FigureBase::getCoordY()
+	void FigureBase::setNeedToSpawn(bool needToSpawn)
 	{
-		return m_coordY;
+		if (needToSpawn) {
+			sprite()->setScale(0.0f, 0.0f);
+		}
+		m_needToSpawn = needToSpawn;
+	}
+
+	bool FigureBase::isNeedToSpawn()
+	{
+		return m_needToSpawn;
 	}
 }

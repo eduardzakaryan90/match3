@@ -2,17 +2,19 @@
 
 #include "AnimationBase.h"
 
+#include "SFML/System/Vector2.hpp"
+
 #include <set>
 #include <memory>
 
 namespace match3
 {
 	class FigureBase;
-	class DestroyAnimation : public AnimationBase
+	class SpawnAnimation : public AnimationBase
 	{
 	public:
-		DestroyAnimation(std::set<std::shared_ptr<FigureBase>> figures);
-		virtual ~DestroyAnimation();
+		SpawnAnimation(std::set<std::shared_ptr<FigureBase>> figures);
+		virtual ~SpawnAnimation();
 
 		virtual bool animate() override;
 
@@ -20,5 +22,6 @@ namespace match3
 
 	private:
 		std::set<std::shared_ptr<FigureBase>> m_targets;
+		sf::Vector2f m_targetScale = sf::Vector2f(0.5f, 0.5f);
 	};
 }

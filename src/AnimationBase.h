@@ -2,11 +2,12 @@
 
 namespace match3
 {
-	enum AnimationType {
+	enum class AnimationType {
 		Destroy = 0,
 		Swipe = 1,
 		BlockedMove = 2,
-		Drop = 3
+		Drop = 3,
+		Spawn = 4
 	};
 
 	class AnimationBase
