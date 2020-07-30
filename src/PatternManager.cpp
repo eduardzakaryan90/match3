@@ -68,14 +68,14 @@ namespace match3
 						hasMatch = true;
 
 						if (match.type != BombType::NoBomb) {
-							bool found = false;
+							bool bombFound = false;
 							for (auto pair : m_bombs) {
 								if (pair.first.x == affCoord.x && pair.first.y == affCoord.y) {
-									found = true;
+									bombFound = true;
 								}
 							}
 
-							if (!found) {
+							if (!bombFound) {
 								std::shared_ptr<FigureBase> bomb;
 								switch (match.type) {
 								case BombType::HBomb:

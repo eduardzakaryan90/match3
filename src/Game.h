@@ -72,6 +72,8 @@ namespace match3
 		void drawHeader();
 		void drawGameBoard();
 		void handleAnimations();
+		void shuffleIfNeeded();
+		bool findPossibleCombinations(std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures);
 
 		FigureType getBoardColorFigureTypesFromColorName(std::string colorName);
 
@@ -82,7 +84,7 @@ namespace match3
 
 		void createGameBoardBackgroundTiles();
 		void createInitialGameBoardFigures();
-		void setGameBoardFigureCoords(int32_t i, int32_t j);
+		void setGameBoardFigureCoords(int32_t i, int32_t j, std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures);
 		std::shared_ptr<FigureBase> getRandomColorFigure();
 		std::shared_ptr<FigureBase> findFigureUnderXY(float x, float y);
 
@@ -99,6 +101,7 @@ namespace match3
 		std::shared_ptr<PatternManager> m_patternManager;
 
 		bool m_canDecrementMovesCount;
+		bool m_shuffling;
 
 		std::shared_ptr<sf::Text> m_gameMessageText;
 
@@ -113,6 +116,7 @@ namespace match3
 		std::vector<FigureType> m_colorFigureTypesInGame;
 		std::list<std::shared_ptr<sf::Sprite>> m_gameBoardBackgroundTiles;
 		std::vector<std::vector<std::shared_ptr<FigureBase>>> m_gameBoardFigures;
+		std::vector<std::vector<std::shared_ptr<FigureBase>>> m_shuffledGameBoardFigures;
 		std::set<std::shared_ptr<FigureBase>> m_spawnList;
 
 		std::shared_ptr<AnimationBase> m_activeAnimation;

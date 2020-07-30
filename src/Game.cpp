@@ -14,7 +14,7 @@
 #include "RBombFigure.h"
 #include "SFML/Graphics.hpp"
 
-#include <set>
+#include <algorithm>
 
 namespace match3
 {
@@ -24,6 +24,7 @@ namespace match3
 		, m_movesCount(movesCount)
 		, m_gameState(GameState::Active)
 		, m_canDecrementMovesCount(false)
+		, m_shuffling(false)
 	{
 		m_patternManager.reset(new PatternManager());
 
@@ -341,20 +342,20 @@ namespace match3
 					m_gameBoardFigures[i][j] = getRandomColorFigure();
 				} while (m_patternManager->checkMatch({ sf::Vector2i(i, j) }, m_gameBoardFigures));
 				
-				setGameBoardFigureCoords(i, j);
+				setGameBoardFigureCoords(i, j, m_gameBoardFigures);
 			}
 		}
 	}
 
-	void Game::setGameBoardFigureCoords(int32_t i, int32_t j)
+	void Game::setGameBoardFigureCoords(int32_t i, int32_t j, std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures)
 	{
-		sf::FloatRect boundRect = m_gameBoardFigures[i][j]->sprite()->getGlobalBounds();
+		sf::FloatRect boundRect = gameBoardFigures[i][j]->sprite()->getGlobalBounds();
 		float x = BOARD_HORIZONTAL_DELTA + (i + 0.5f) * TILE_SIZE - boundRect.width / 2;
 		float y = HEADER_HEIGHT + BOARD_VERTICAL_DELTA + (j + 0.5f) * TILE_SIZE - boundRect.height / 2;
 
-		m_gameBoardFigures[i][j]->sprite()->setPosition(x, y);
+		gameBoardFigures[i][j]->sprite()->setPosition(x, y);
 
-		m_gameBoardFigures[i][j]->setCoords(i, j);
+		gameBoardFigures[i][j]->setCoords(i, j);
 	}
 
 	std::shared_ptr<FigureBase> Game::getRandomColorFigure()
@@ -394,7 +395,7 @@ namespace match3
 				std::shared_ptr<FigureBase> bomb(bombCoordPair.second);
 				bomb->setNeedToSpawn(true);
 				m_gameBoardFigures[bombCoordPair.first.x][bombCoordPair.first.y] = bomb;
-				setGameBoardFigureCoords(bombCoordPair.first.x, bombCoordPair.first.y);
+				setGameBoardFigureCoords(bombCoordPair.first.x, bombCoordPair.first.y, m_gameBoardFigures);
 				m_spawnList.insert(bomb);
 			}
 
@@ -406,6 +407,22 @@ namespace match3
 
 	void Game::handleDestoryAnimation()
 	{
+		if (m_shuffling) {
+			m_gameBoardFigures = m_shuffledGameBoardFigures;
+			m_shuffledGameBoardFigures.clear();
+
+			std::set<std::shared_ptr<FigureBase>> affectedFigures;
+			for (auto& row : m_gameBoardFigures) {
+				for (auto& figure : row) {
+					affectedFigures.insert(figure);
+				}
+			}
+
+			m_activeAnimation.reset(new SpawnAnimation(affectedFigures));
+			return;
+		}
+
+
 		auto destroyAnim = std::dynamic_pointer_cast<DestroyAnimation>(m_activeAnimation);
 
 		std::set<std::shared_ptr<FigureBase>> spawnListBeforeDrop;
@@ -467,7 +484,7 @@ namespace match3
 						m_gameBoardFigures[i][j] = newFigure;
 						newFigure->setCoords(i, j);
 						newFigure->setNeedToSpawn(true);
-						setGameBoardFigureCoords(i, j);
+						setGameBoardFigureCoords(i, j, m_gameBoardFigures);
 						m_spawnList.insert(newFigure);
 					}
 				}
@@ -510,7 +527,7 @@ namespace match3
 				createSwipeAnimation(swipeAnim->getFigure2(), swipeAnim->getFigure1(), swipeAnim->getDirection(), true);
 			}
 			else {
-				m_activeAnimation.reset();
+				shuffleIfNeeded();
 			}
 		}
 		else {
@@ -530,12 +547,18 @@ namespace match3
 			m_spawnList.clear();
 		}
 		else {
-			m_activeAnimation.reset();
+			shuffleIfNeeded();
 		}
 	}
 
 	void Game::handleSpawnAnimation()
 	{
+		if (m_shuffling) {
+			m_shuffling = false;
+			m_activeAnimation.reset();
+			return;
+		}
+
 		auto spawnAnim = std::dynamic_pointer_cast<SpawnAnimation>(m_activeAnimation);
 		for (auto target : spawnAnim->getTargets()) {
 			m_checkCoords.push_back(target->getCoords());
@@ -549,7 +572,7 @@ namespace match3
 		}
 		else {
 			if (!checkListForMatching(m_checkCoords)) {
-				m_activeAnimation.reset();
+				shuffleIfNeeded();
 			}
 			m_checkCoords.clear();
 		}
@@ -608,8 +631,66 @@ namespace match3
 			handleSpawnAnimation();
 			break;
 		default:
-			m_activeAnimation.reset();
+			shuffleIfNeeded();
 			break;
 		}
+	}
+
+	void Game::shuffleIfNeeded()
+	{
+		if (findPossibleCombinations(m_gameBoardFigures)) {
+			m_activeAnimation.reset();
+			return;
+		}
+
+		m_shuffledGameBoardFigures = m_gameBoardFigures;
+
+		std::list<sf::Vector2i> allCoords;
+		for (int32_t i = 0; i < m_columnsSize; ++i) {
+			for (int32_t j = 0; j < m_rowsSize; ++j) {
+				allCoords.push_back(sf::Vector2i(i, j));
+			}
+		}
+
+		do {
+			for (auto& row : m_shuffledGameBoardFigures) {
+				std::random_shuffle(row.begin(), row.end());
+			}			
+		} while (m_patternManager->checkMatch(allCoords, m_shuffledGameBoardFigures)
+			&& findPossibleCombinations(m_shuffledGameBoardFigures));
+
+		std::set<std::shared_ptr<FigureBase>> affectedFigures;
+		for (int32_t i = 0; i < m_columnsSize; ++i) {
+			for (int32_t j = 0; j < m_rowsSize; ++j) {
+				affectedFigures.insert(m_gameBoardFigures[i][j]);
+
+				m_shuffledGameBoardFigures[i][j]->setNeedToSpawn(true);
+				setGameBoardFigureCoords(i, j, m_shuffledGameBoardFigures);
+			}
+		}
+
+		m_shuffling = true;
+		m_activeAnimation.reset(new DestroyAnimation(affectedFigures));
+	}
+
+	bool Game::findPossibleCombinations(std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures)
+	{
+		for (int32_t i = 0; i < m_columnsSize - 1; ++i) {
+			for (int32_t j = 0; j < m_rowsSize - 1; ++j) {
+				std::vector<sf::Vector2i> checkCoords{ sf::Vector2i(i + 1, j), sf::Vector2i(i, j + 1) };
+
+				for (auto checkCoord : checkCoords) {
+					auto gameBoardFiguresCopy = gameBoardFigures;
+					auto figureToChange = gameBoardFiguresCopy[i][j];
+					gameBoardFiguresCopy[i][j] = gameBoardFiguresCopy[checkCoord.x][checkCoord.y];
+					gameBoardFiguresCopy[checkCoord.x][checkCoord.y] = figureToChange;
+					if (m_patternManager->checkMatch({ sf::Vector2i(i, j), checkCoord }, gameBoardFiguresCopy)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 }
