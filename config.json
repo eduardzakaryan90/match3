@@ -1,0 +1,25 @@
+{
+	"boardColumns": 10,
+	"boardRows": 8,
+	"movesCount": 20,
+	"figures": [
+		{
+			"color":"red",
+			"objective":15
+		},
+		{
+			"color":"green",
+			"objective":30
+		},
+		{
+			"color":"blue"
+		},
+		{
+			"color":"orange"
+		},
+		{
+			"color":"violet",
+			"objective":40
+		}
+	]
+}

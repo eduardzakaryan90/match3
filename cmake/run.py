@@ -6,6 +6,7 @@ sys.dont_write_bytecode = True
 import argparse
 import os
 import subprocess
+import shutil
 
 scriptPath = os.path.dirname(__file__)
 
@@ -27,6 +28,14 @@ if __name__ == '__main__':
 		os.makedirs(buildPath)
 	os.chdir(buildPath)
 	
+	sourceConfigFile = os.path.join(sourcePath, 'config.json')
+	destinationConfigFile = os.path.join(os.getcwd(), 'config.json')
+	shutil.copyfile(sourceConfigFile, destinationConfigFile)
+
+	sourceResources = os.path.join(sourcePath, 'resources')
+	destinationResources = os.path.join(os.getcwd(), 'resources')
+	shutil.copytree(sourceResources, destinationResources)
+
 	platformStr = args.platform.upper()
 	if platformStr == 'MACOSX_XCODE':
 		generator = 'Xcode'
