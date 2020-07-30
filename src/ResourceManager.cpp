@@ -16,6 +16,11 @@ namespace match3
 		// get root resource path
 		fs::path resourcePath = fs::current_path().append(resourcesFolderName);
 
+		// load fonts
+		if (!m_mainFont.loadFromFile(fs::path(resourcePath).append(FONT_FILE_NAME).string())) {
+			return false;
+		}
+
 		// load textures
 		if (!m_redFigureTexture.loadFromFile(fs::path(resourcePath).append(RED_FIGURE_FILE_NAME).string())
 			|| !m_greenFigureTexture.loadFromFile(fs::path(resourcePath).append(GREEN_FIGURE_FILE_NAME).string())
@@ -27,11 +32,6 @@ namespace match3
 			|| !m_rBombTexture.loadFromFile(fs::path(resourcePath).append(R_BOMB_FIGURE_FILE_NAME).string())
 			|| !m_tileTexture1.loadFromFile(fs::path(resourcePath).append(TILE_1_FILE_NAME).string())
 			|| !m_tileTexture2.loadFromFile(fs::path(resourcePath).append(TILE_2_FILE_NAME).string())) {
-			return false;
-		}
-
-		// load fonts
-		if (!m_mainFont.loadFromFile(fs::path(resourcePath).append(FONT_FILE_NAME).string())) {
 			return false;
 		}
 

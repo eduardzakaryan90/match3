@@ -3,7 +3,6 @@
 #include "HBombFigure.h"
 #include "VBombFigure.h"
 #include "RBombFigure.h"
-#include "FigureBase.h"
 
 namespace match3
 {
@@ -15,7 +14,7 @@ namespace match3
 
 		for (auto& affCoord : affectedCoords) {
 			bool alreadyUsedCoord = false;
-			for (auto matchedCoord : m_matchedCoords) {
+			for (auto& matchedCoord : m_matchedCoords) {
 				if (affCoord == matchedCoord) {
 					alreadyUsedCoord = true;
 					break;
@@ -25,7 +24,7 @@ namespace match3
 				continue;
 			}
 
-			auto figure = gameBoardFigures[affCoord.x][affCoord.y];
+			auto& figure = gameBoardFigures[affCoord.x][affCoord.y];
 			if (figure.get() == nullptr) {
 				continue;
 			}
@@ -48,7 +47,7 @@ namespace match3
 						int32_t y = affCoord.y + match.pattern[j].y - match.pattern[i].y;
 						try
 						{
-							auto checkFigure = gameBoardFigures.at(x).at(y);
+							auto& checkFigure = gameBoardFigures.at(x).at(y);
 							if (checkFigure.get() == nullptr || type != checkFigure->type()) {
 								hasMatchCurrentPattern = false;
 								break;
@@ -69,7 +68,7 @@ namespace match3
 
 						if (match.type != BombType::NoBomb) {
 							bool bombFound = false;
-							for (auto pair : m_bombs) {
+							for (auto& pair : m_bombs) {
 								if (pair.first.x == affCoord.x && pair.first.y == affCoord.y) {
 									bombFound = true;
 								}
@@ -91,7 +90,7 @@ namespace match3
 								m_bombs.push_back(std::pair<sf::Vector2i, std::shared_ptr<FigureBase>>(affCoord, bomb));
 							}
 						}
-						m_matchedCoords.splice(m_matchedCoords.end(), possibleMatchedCoords);
+						m_matchedCoords.insert(m_matchedCoords.end(), possibleMatchedCoords.begin(), possibleMatchedCoords.end());
 						break;
 					}
 				}

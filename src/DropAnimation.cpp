@@ -18,7 +18,7 @@ namespace match3
 		m_targetPositions.resize(m_dropingFigures.size());
 
 		size_t i = 0;
-		for (auto droppigFigure : m_dropingFigures) {
+		for (auto& droppigFigure : m_dropingFigures) {
 			m_targetPositions[i] = droppigFigure.second * m_moveDelta + droppigFigure.first->sprite()->getPosition().y;
 			++i;
 		}
@@ -35,7 +35,7 @@ namespace match3
 
 		size_t i = 0;
 		for (auto& droppigFigure : m_dropingFigures) {
-			auto sprite = droppigFigure.first->sprite();
+			auto& sprite = droppigFigure.first->sprite();
 
 			float x = sprite->getPosition().x;
 			float y = sprite->getPosition().y + MOVE_ANIMATION_SPEED;

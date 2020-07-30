@@ -1,20 +1,20 @@
 #include "Game.h"
 
 #include "ResourceManager.h"
-#include "PatternManager.h"
 #include "DestroyAnimation.h"
 #include "SwipeAnimation.h"
 #include "DropAnimation.h"
 #include "SpawnAnimation.h"
 #include "BlockedMoveAnimation.h"
 #include "ColorFigure.h"
-#include "BombFigureBase.h"
 #include "HBombFigure.h"
 #include "VBombFigure.h"
 #include "RBombFigure.h"
 #include "SFML/Graphics.hpp"
 
 #include <algorithm>
+#include <random>
+#include <chrono>
 
 namespace match3
 {
@@ -57,7 +57,7 @@ namespace match3
 		m_gameMessageText->setLetterSpacing(1.5f);
 		m_gameMessageText->setPosition(TILE_SIZE, TILE_SIZE);
 
-		sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
+		sf::FloatRect& boundRect = m_gameMessageText->getGlobalBounds();
 		m_windowWidth = static_cast<uint32_t>(TILE_SIZE * 2 + boundRect.width);
 		m_windowHeight = static_cast<uint32_t>(TILE_SIZE * 2 + boundRect.height);
 	}
@@ -84,7 +84,7 @@ namespace match3
 	void Game::mouseMoveEvent(float x, float y, SwipeDirection direction)
 	{
 		if (m_gameState == GameState::Active && m_activeAnimation.get() == nullptr) {
-			std::shared_ptr<FigureBase> figure = findFigureUnderXY(x, y);
+			auto& figure = findFigureUnderXY(x, y);
 			if (figure.get() != nullptr && figure->canSwipe()) {
 				std::shared_ptr<FigureBase> secondFigure;
 				switch (direction)
@@ -129,14 +129,14 @@ namespace match3
 	void Game::mouseClickEvent(float x, float y)
 	{
 		if (m_gameState == GameState::Active && m_activeAnimation.get() == nullptr) {
-			std::shared_ptr<FigureBase> figure = findFigureUnderXY(x, y);
+			auto& figure = findFigureUnderXY(x, y);
 			if (figure.get() != nullptr && figure->canClick()) {
 				if (figure->type() == FigureType::BombFigureType) {
 					m_canDecrementMovesCount = true;
 					updateMovesCount();
 
-					auto bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
-					auto affectedFigures = bomb->blow(m_gameBoardFigures);
+					auto& bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
+					auto& affectedFigures = bomb->blow(m_gameBoardFigures);
 					m_activeAnimation.reset(new DestroyAnimation(affectedFigures));
 				}
 			}
@@ -171,7 +171,7 @@ namespace match3
 
 		size_t figuresIterator = 0;
 		size_t ObjectivesIterator = 0;
-		for (auto config : figuresConfig) {
+		for (auto& config : figuresConfig) {
 			FigureType figureType = getBoardColorFigureTypesFromColorName(config.first);
 			int32_t objectiveTarget = config.second;
 
@@ -181,9 +181,10 @@ namespace match3
 				objective.target = objectiveTarget;
 
 				// create objective sprite
-				std::shared_ptr<sf::Sprite> sprite = ColorFigure::createSpriteFromColorFigureType(figureType);
+				auto sprite = ColorFigure::createSpriteFromColorFigureType(figureType);
+				sprite->setScale(0.6f, 0.6f);
 
-				sf::FloatRect spriteBoundRect = sprite->getGlobalBounds();
+				sf::FloatRect& spriteBoundRect = sprite->getGlobalBounds();
 				float spriteXDelta = spriteBoundRect.width / 2;
 				float spriteYDelta = spriteBoundRect.height / 2;
 
@@ -254,7 +255,7 @@ namespace match3
 			if (m_movesCount == 0) {
 				m_gameMessageText->setString(LOST_TEXT);
 				m_gameMessageText->setFillColor(sf::Color::Red);
-				sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
+				sf::FloatRect& boundRect = m_gameMessageText->getGlobalBounds();
 				float xDelta = boundRect.width / 2;
 				float yDelta = boundRect.height / 2;
 				m_gameMessageText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
@@ -263,7 +264,7 @@ namespace match3
 		}
 
 		m_movesCountText->setString(std::to_string(m_movesCount));
-		sf::FloatRect boundRect = m_movesCountText->getGlobalBounds();
+		sf::FloatRect& boundRect = m_movesCountText->getGlobalBounds();
 		float xDelta = boundRect.width / 2;
 		float yDelta = boundRect.height / 2;
 		m_movesCountText->setPosition(m_movesCountCenterPos.x - xDelta, m_movesCountCenterPos.y - yDelta);
@@ -288,7 +289,7 @@ namespace match3
 				}
 
 				objective.targetText->setString(std::to_string(objective.target));
-				sf::FloatRect boundRect = objective.targetText->getGlobalBounds();
+				sf::FloatRect& boundRect = objective.targetText->getGlobalBounds();
 				float xDelta = boundRect.width / 2;
 				float yDelta = boundRect.height / 2;
 				objective.targetText->setPosition(objective.centerPos.x - xDelta, objective.centerPos.y - 2 * yDelta);
@@ -299,7 +300,7 @@ namespace match3
 		if (targetAchieved == m_objectives.size()) {
 			m_gameMessageText->setString(WON_TEXT);
 			m_gameMessageText->setFillColor(sf::Color::Green);
-			sf::FloatRect boundRect = m_gameMessageText->getGlobalBounds();
+			sf::FloatRect& boundRect = m_gameMessageText->getGlobalBounds();
 			float xDelta = boundRect.width / 2;
 			float yDelta = boundRect.height / 2;
 			m_gameMessageText->setPosition(m_windowWidth / 2 - xDelta, m_windowHeight / 2 - yDelta);
@@ -349,7 +350,7 @@ namespace match3
 
 	void Game::setGameBoardFigureCoords(int32_t i, int32_t j, std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures)
 	{
-		sf::FloatRect boundRect = gameBoardFigures[i][j]->sprite()->getGlobalBounds();
+		sf::FloatRect& boundRect = gameBoardFigures[i][j]->sprite()->getGlobalBounds();
 		float x = BOARD_HORIZONTAL_DELTA + (i + 0.5f) * TILE_SIZE - boundRect.width / 2;
 		float y = HEADER_HEIGHT + BOARD_VERTICAL_DELTA + (j + 0.5f) * TILE_SIZE - boundRect.height / 2;
 
@@ -387,12 +388,12 @@ namespace match3
 		if (m_patternManager->checkMatch(checkList, m_gameBoardFigures)) {
 			std::set<std::shared_ptr<FigureBase>> matchFigureList;
 
-			for (auto matchCoord : m_patternManager->getMatchedCoords()) {
+			for (auto& matchCoord : m_patternManager->getMatchedCoords()) {
 				matchFigureList.insert(m_gameBoardFigures[matchCoord.x][matchCoord.y]);
 			}
 
-			for (auto bombCoordPair : m_patternManager->getBombs()) {
-				std::shared_ptr<FigureBase> bomb(bombCoordPair.second);
+			for (auto& bombCoordPair : m_patternManager->getBombs()) {
+				auto& bomb = bombCoordPair.second;
 				bomb->setNeedToSpawn(true);
 				m_gameBoardFigures[bombCoordPair.first.x][bombCoordPair.first.y] = bomb;
 				setGameBoardFigureCoords(bombCoordPair.first.x, bombCoordPair.first.y, m_gameBoardFigures);
@@ -426,7 +427,7 @@ namespace match3
 		auto destroyAnim = std::dynamic_pointer_cast<DestroyAnimation>(m_activeAnimation);
 
 		std::set<std::shared_ptr<FigureBase>> spawnListBeforeDrop;
-		for (auto figure : m_spawnList) {
+		for (auto& figure : m_spawnList) {
 			if (figure->isNeedToSpawn()) {
 				spawnListBeforeDrop.insert(figure);
 			}
@@ -438,13 +439,13 @@ namespace match3
 
 		std::set<int32_t> columnIndexes;
 
-		for (auto target : destroyAnim->getTargets()) {
+		for (auto& target : destroyAnim->getTargets()) {
 			updateObjectiveTarget(target->type());
 
 			int32_t x = target->getCoords().x;
 			int32_t y = target->getCoords().y;
 			bool bombFound = false;
-			for (auto figure : spawnListBeforeDrop) {
+			for (auto& figure : spawnListBeforeDrop) {
 				if (figure->getCoords().x == x && figure->getCoords().y == y) {
 					bombFound = true;
 					break;
@@ -480,7 +481,7 @@ namespace match3
 						dropingFigures.push_back(std::pair<std::shared_ptr<FigureBase>, int32_t>(targetFigure, dropStepsCount));
 					}
 					else {
-						std::shared_ptr<FigureBase> newFigure = getRandomColorFigure();
+						auto newFigure = getRandomColorFigure();
 						m_gameBoardFigures[i][j] = newFigure;
 						newFigure->setCoords(i, j);
 						newFigure->setNeedToSpawn(true);
@@ -560,7 +561,7 @@ namespace match3
 		}
 
 		auto spawnAnim = std::dynamic_pointer_cast<SpawnAnimation>(m_activeAnimation);
-		for (auto target : spawnAnim->getTargets()) {
+		for (auto& target : spawnAnim->getTargets()) {
 			m_checkCoords.push_back(target->getCoords());
 		}
 
@@ -596,7 +597,7 @@ namespace match3
 	{
 		// draw background tiles
 		m_app->draw(*m_gameBoardRectangle);
-		for (auto tile : m_gameBoardBackgroundTiles) {
+		for (auto& tile : m_gameBoardBackgroundTiles) {
 			m_app->draw(*tile);
 		}
 
@@ -638,6 +639,15 @@ namespace match3
 
 	void Game::shuffleIfNeeded()
 	{
+		for (auto& row : m_gameBoardFigures) {
+			for (auto& figure : row) {
+				if (figure->type() == FigureType::BombFigureType) {
+					m_activeAnimation.reset();
+					return;
+				}
+			}
+		}
+
 		if (findPossibleCombinations(m_gameBoardFigures)) {
 			m_activeAnimation.reset();
 			return;
@@ -654,7 +664,9 @@ namespace match3
 
 		do {
 			for (auto& row : m_shuffledGameBoardFigures) {
-				std::random_shuffle(row.begin(), row.end());
+				uint32_t seed = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
+
+				std::shuffle(row.begin(), row.end(), std::default_random_engine(seed));
 			}			
 		} while (m_patternManager->checkMatch(allCoords, m_shuffledGameBoardFigures)
 			&& findPossibleCombinations(m_shuffledGameBoardFigures));
@@ -679,9 +691,9 @@ namespace match3
 			for (int32_t j = 0; j < m_rowsSize - 1; ++j) {
 				std::vector<sf::Vector2i> checkCoords{ sf::Vector2i(i + 1, j), sf::Vector2i(i, j + 1) };
 
-				for (auto checkCoord : checkCoords) {
+				for (auto& checkCoord : checkCoords) {
 					auto gameBoardFiguresCopy = gameBoardFigures;
-					auto figureToChange = gameBoardFiguresCopy[i][j];
+					auto& figureToChange = gameBoardFiguresCopy[i][j];
 					gameBoardFiguresCopy[i][j] = gameBoardFiguresCopy[checkCoord.x][checkCoord.y];
 					gameBoardFiguresCopy[checkCoord.x][checkCoord.y] = figureToChange;
 					if (m_patternManager->checkMatch({ sf::Vector2i(i, j), checkCoord }, gameBoardFiguresCopy)) {

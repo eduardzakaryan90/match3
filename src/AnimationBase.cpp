@@ -17,9 +17,4 @@ namespace match3
 	{
 		return m_type;
 	}
-
-	bool AnimationBase::animate()
-	{
-		return true;
-	}
 }

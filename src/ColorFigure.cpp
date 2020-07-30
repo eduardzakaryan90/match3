@@ -38,7 +38,6 @@ namespace match3
 			sprite.reset(new sf::Sprite(ResourceManager::getTexture(Texture::VioletTexture)));
 			break;
 		}
-		sprite->setScale(0.6f, 0.6f);
 		return sprite;
 	}
 }

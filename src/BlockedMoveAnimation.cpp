@@ -38,7 +38,7 @@ namespace match3
 	{
 		bool isFinished = false;
 
-		auto sprite = m_figure->sprite();
+		auto& sprite = m_figure->sprite();
 
 		float x = sprite->getPosition().x;
 		float y = sprite->getPosition().y;

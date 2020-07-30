@@ -19,7 +19,7 @@ namespace match3
 		void startGame();
 
 	private:
-		std::auto_ptr<Game> m_game;
+		std::unique_ptr<Game> m_game;
 		std::shared_ptr<sf::RenderWindow> m_app;
 	};
 }

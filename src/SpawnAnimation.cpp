@@ -9,7 +9,7 @@ namespace match3
 		: AnimationBase(AnimationType::Spawn)
 		, m_targets(figures)
 	{
-		for (auto target : m_targets) {
+		for (auto& target : m_targets) {
 			target->setNeedToSpawn(false);
 		}
 	}
@@ -23,24 +23,24 @@ namespace match3
 	{
 		int32_t finishedTargets = 0;
 
-		for (auto target : m_targets) {
-			std::shared_ptr<sf::Sprite> sprite(target->sprite());
+		for (auto& target : m_targets) {
+			auto& sprite = target->sprite();
 
-			sf::FloatRect originBoundRect = sprite->getGlobalBounds();
+			sf::FloatRect& originBoundRect = sprite->getGlobalBounds();
 			sf::Vector2f originScale = sprite->getScale();
 			sf::Vector2f originPos = sprite->getPosition();
 
 			float newScaleX = originScale.x + SCALE_ANIMATION_SPEED;
 			float newScaleY = originScale.y + SCALE_ANIMATION_SPEED;
 
-			if (newScaleX > m_targetScale.x) {
-				newScaleX = m_targetScale.x;
-				newScaleY = m_targetScale.y;
+			if (newScaleX > TARGET_SCALE.x) {
+				newScaleX = TARGET_SCALE.x;
+				newScaleY = TARGET_SCALE.y;
 				++finishedTargets;
 			}
 
 			sprite->setScale(newScaleX, newScaleY);
-			sf::FloatRect newBoundRect = sprite->getGlobalBounds();
+			sf::FloatRect& newBoundRect = sprite->getGlobalBounds();
 
 			float deltaX = (originBoundRect.width - newBoundRect.width) / 2;
 			float deltaY = (originBoundRect.height - newBoundRect.height) / 2;

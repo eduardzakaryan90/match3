@@ -12,11 +12,11 @@ namespace match3
 		, m_direction(direction)
 		, m_isReverseAnim(isReverseAnim)
 	{
-		auto sprite1 = m_figure1->sprite();
-		auto sprite2 = m_figure2->sprite();
+		auto& sprite1 = m_figure1->sprite();
+		auto& sprite2 = m_figure2->sprite();
 
-		auto bounds1 = sprite1->getGlobalBounds();
-		auto bounds2 = sprite2->getGlobalBounds();
+		auto& bounds1 = sprite1->getGlobalBounds();
+		auto& bounds2 = sprite2->getGlobalBounds();
 
 		m_targetPos2.x = sprite1->getPosition().x + bounds1.width / 2 - bounds2.width / 2;
 		m_targetPos1.x = sprite2->getPosition().x + bounds2.width / 2 - bounds1.width / 2;
@@ -33,8 +33,8 @@ namespace match3
 	{
 		bool isFinished = false;
 
-		auto sprite1 = m_figure1->sprite();
-		auto sprite2 = m_figure2->sprite();
+		auto& sprite1 = m_figure1->sprite();
+		auto& sprite2 = m_figure2->sprite();
 
 		float x1 = sprite1->getPosition().x;
 		float y1 = sprite1->getPosition().y;

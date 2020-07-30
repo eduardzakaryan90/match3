@@ -19,8 +19,9 @@ namespace match3
 		if (affectedList.find(figure) != affectedList.end()) {
 			return;
 		}
+
 		if (figure->type() == FigureType::BombFigureType && figure.get() != this) {
-			std::shared_ptr<BombFigureBase> bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
+			auto bomb = std::dynamic_pointer_cast<BombFigureBase>(figure);
 			m_chainBlowBombs.insert(bomb);
 		}
 		else {

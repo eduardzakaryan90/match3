@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FigureBase.h"
+#include "PatternManager.h"
 #include "SFML/System/Vector2.hpp"
 
 #include <memory>
@@ -36,7 +37,6 @@ namespace match3
 
 	class DropAnimation;
 	class AnimationBase;
-	class PatternManager;
 	class Game
 	{
 	private:
@@ -98,7 +98,7 @@ namespace match3
 	private:
 		std::shared_ptr<sf::RenderWindow> m_app;
 		GameState m_gameState;
-		std::shared_ptr<PatternManager> m_patternManager;
+		std::unique_ptr<PatternManager> m_patternManager;
 
 		bool m_canDecrementMovesCount;
 		bool m_shuffling;

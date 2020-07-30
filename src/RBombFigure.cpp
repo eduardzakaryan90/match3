@@ -1,5 +1,6 @@
 #include "RBombFigure.h"
 
+#include "ResourceManager.h"
 #include "SFML/Graphics/Sprite.hpp"
 
 namespace match3
@@ -36,8 +37,8 @@ namespace match3
 			}
 		}
 
-		for (auto bomb : m_chainBlowBombs) {
-			auto subBombAffectedFigures = bomb->blow(gameBoardFigures, affectedFigures);
+		for (auto& bomb : m_chainBlowBombs) {
+			auto& subBombAffectedFigures = bomb->blow(gameBoardFigures, affectedFigures);
 			affectedFigures.insert(subBombAffectedFigures.begin(), subBombAffectedFigures.end());
 		}
 

@@ -21,10 +21,10 @@ namespace match3
 	{
 		int32_t finishedTargets = 0;
 
-		for (auto target : m_targets) {
-			std::shared_ptr<sf::Sprite> sprite(target->sprite());
+		for (auto& target : m_targets) {
+			auto& sprite = target->sprite();
 
-			sf::FloatRect originBoundRect = sprite->getGlobalBounds();
+			sf::FloatRect& originBoundRect = sprite->getGlobalBounds();
 			sf::Vector2f originScale = sprite->getScale();
 			sf::Vector2f originPos = sprite->getPosition();
 
@@ -33,15 +33,12 @@ namespace match3
 
 			if (newScaleX < 0) {
 				newScaleX = 0;
-				++finishedTargets;
-			}
-			else if (newScaleY < 0) {
 				newScaleY = 0;
 				++finishedTargets;
 			}
 
 			sprite->setScale(newScaleX, newScaleY);
-			sf::FloatRect newBoundRect = sprite->getGlobalBounds();
+			sf::FloatRect& newBoundRect = sprite->getGlobalBounds();
 
 			float deltaX = (originBoundRect.width - newBoundRect.width) / 2;
 			float deltaY = (originBoundRect.height - newBoundRect.height) / 2;

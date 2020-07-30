@@ -21,7 +21,7 @@ namespace match3
 		virtual ~AnimationBase();
 
 		AnimationType type();
-		virtual bool animate();
+		virtual bool animate() = 0;
 
 	private:
 		AnimationType m_type;

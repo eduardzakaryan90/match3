@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AnimationBase.h"
+
 #include "FigureBase.h"
 
 #include <memory>

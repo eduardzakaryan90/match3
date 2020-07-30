@@ -2,7 +2,7 @@
 
 #include "FigureBase.h"
 
-#include<set>
+#include <set>
 
 namespace match3
 {
@@ -19,7 +19,6 @@ namespace match3
 			, std::vector<std::vector<std::shared_ptr<FigureBase>>>& gameBoardFigures);
 
 	protected:
-		std::set<std::shared_ptr<FigureBase>> affectedFigures;
 		std::set<std::shared_ptr<BombFigureBase>> m_chainBlowBombs;
 	};
 }

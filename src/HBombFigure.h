@@ -2,8 +2,6 @@
 
 #include "BombFigureBase.h"
 
-#include "ResourceManager.h"
-
 namespace match3
 {
 	class HBombFigure : public BombFigureBase

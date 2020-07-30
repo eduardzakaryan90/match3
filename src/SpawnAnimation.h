@@ -12,6 +12,9 @@ namespace match3
 	class FigureBase;
 	class SpawnAnimation : public AnimationBase
 	{
+	private:
+		const sf::Vector2f TARGET_SCALE = sf::Vector2f(0.5f, 0.5f);
+
 	public:
 		SpawnAnimation(std::set<std::shared_ptr<FigureBase>> figures);
 		virtual ~SpawnAnimation();
@@ -22,6 +25,5 @@ namespace match3
 
 	private:
 		std::set<std::shared_ptr<FigureBase>> m_targets;
-		sf::Vector2f m_targetScale = sf::Vector2f(0.5f, 0.5f);
 	};
 }

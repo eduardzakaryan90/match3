@@ -14,10 +14,10 @@ namespace match3
 		GameConfig config;
 		try {
 			if (!ResourceManager::getInstance().loadResources()) {
-				errorString == "Unable to load resources";
+				errorString = "Unable to load resources";
 			}
-
-			if (!config.readJsonFile()) {
+			
+			if (errorString.empty() && !config.readJsonFile()) {
 				errorString = "Unable to read config.json file";
 			}
 		}

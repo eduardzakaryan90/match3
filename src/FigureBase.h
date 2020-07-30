@@ -28,6 +28,7 @@ namespace match3
 
 	class FigureBase
 	{
+	private:
 		const float DEFAULT_SCALE = 0.5f;
 
 	public:
